@@ -1,7 +1,8 @@
-const express = require("express");
+// routes/QuizRoutes.js
+import express from 'express';
 const router = express.Router();
 
-const {
+import {
     startQuiz,
     submitQuiz,
     getQuizAttempt,
@@ -10,19 +11,22 @@ const {
     getUserQuizStats,
     getLeaderboard,
     deleteQuizAttempt
-} = require("../Controllers/QuizControllers");
+} from '../Controllers/QuizControllers.js';
 
-const { protect, admin } = require("../Middleware/AuthMiddleware");
+import { protect, admin } from '../Middleware/AuthMiddleware.js';
 
-router.post("/start", protect, startQuiz);
-router.post("/submit", protect, submitQuiz);
-router.get("/history", protect, getUserQuizHistory);
-router.get("/stats", protect, getUserQuizStats);
-router.get("/leaderboard", getLeaderboard);
-router.get("/attempt/:id", protect, getQuizAttempt);
-router.delete("/attempt/:id", protect, deleteQuizAttempt);
+// User routes
+router.post('/start', protect, startQuiz);
+router.post('/submit', protect, submitQuiz);
+router.get('/history', protect, getUserQuizHistory);
+router.get('/stats', protect, getUserQuizStats);
+router.get('/attempt/:id', protect, getQuizAttempt);
+router.delete('/attempt/:id', protect, deleteQuizAttempt);
 
+// Public route
+router.get('/leaderboard', getLeaderboard);
 
-router.get("/all", protect, admin, getAllQuizAttempts);
+// Admin route
+router.get('/all', protect, admin, getAllQuizAttempts);
 
-module.exports = router;
+export default router;

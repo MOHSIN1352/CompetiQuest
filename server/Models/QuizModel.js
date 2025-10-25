@@ -1,66 +1,39 @@
-// const mongoose = require('mongoose');
+// models/QuizAttempt.js
+import mongoose from 'mongoose';
 
-// const QuizAttemptSchema = new mongoose.Schema({
-//     user: {
-//         type: mongoose.Schema.Types.ObjectId,
-//         ref: 'User',
-//         required: true
-//     },
-//     topic: {
-//         type: mongoose.Schema.Types.ObjectId,
-//         ref: 'Topic',
-//         required: true
-//     },
-//     questions: [{
-//         question_id: {
-//             type: mongoose.Schema.Types.ObjectId,
-//             ref: 'Question'
-//         },
-//         selected_option_index: Number,
-//         is_correct: Boolean
-//     }],
-//     score: {
-//         type: Number,
-//         required: true
-//     },
-//     percentage: {
-//         type: Number
-//     },
-//     attempted_at: {
-//         type: Date,
-//         default: Date.now
-//     }
-// });
+const { Schema } = mongoose;
 
-// module.exports = mongoose.model('QuizAttempt', QuizAttemptSchema);
-const mongoose = require('mongoose');
+const AttemptQuestionSchema = new Schema({
+    questionId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Question',
+        required: true
+    },
+    selectedOptionIndex: {
+        type: Number,
+        required: true
+    },
+    isCorrect: {
+        type: Boolean,
+        required: true
+    }
+}, { _id: false });
 
-const QuizAttemptSchema = new mongoose.Schema({
+const QuizAttemptSchema = new Schema({
     user: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: 'User',
         required: true
     },
     topic: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: 'Topic',
         required: true
     },
-    questions: [{
-        question_id: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Question',
-            required: true
-        },
-        selected_option_index: {
-            type: Number,
-            required: true
-        },
-        is_correct: {
-            type: Boolean,
-            required: true
-        }
-    }],
+    questions: {
+        type: [AttemptQuestionSchema],
+        default: []
+    },
     score: {
         type: Number,
         required: true
@@ -69,10 +42,16 @@ const QuizAttemptSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    attempted_at: {
+    attemptedAt: {
         type: Date,
         default: Date.now
+    },
+    // optional: duration/timeTaken in seconds (useful later)
+    durationSeconds: {
+        type: Number
     }
+}, {
+    timestamps: true
 });
 
-module.exports = mongoose.model('QuizAttempt', QuizAttemptSchema);
+export default mongoose.model('QuizAttempt', QuizAttemptSchema);

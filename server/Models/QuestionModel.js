@@ -1,59 +1,56 @@
-const mongoose = require('mongoose');
+// models/Question.js
+import mongoose from 'mongoose';
 
-const QuestionSchema = new mongoose.Schema({
-    question_text: {
+const { Schema } = mongoose;
+
+const QuestionSchema = new Schema({
+    questionText: {
         type: String,
         required: true,
-        unique: true, // Prevent duplicate scraped questions
-        trim: true
+        trim: true,
+        unique: true // keep to avoid duplicate scraped questions; remove if too restrictive
     },
     options: {
         type: [String],
         required: true,
         validate: {
             validator: function (arr) {
-                return arr.length >= 2; // Minimum 2 options required
+                // at least 2 options, at most 6
+                return Array.isArray(arr) && arr.length >= 2 && arr.length <= 6;
             },
-            message: 'At least two options are required.'
+            message: 'Options must be an array with 2 to 6 items.'
         }
     },
-    correct_option_index: {
+    correctOptionIndex: {
         type: Number,
         required: true,
         validate: {
             validator: function (value) {
-                return value >= 0 && value < this.options.length;
+                // use normal function to access 'this'
+                return Number.isInteger(value) && Array.isArray(this.options) && value >= 0 && value < this.options.length;
             },
-            message: 'Correct option index must be within options range.'
+            message: 'correctOptionIndex must be a valid index in options array.'
         }
+    },
+    topic: {
+        type: Schema.Types.ObjectId,
+        ref: 'Topic',
+        required: true
     },
     difficulty: {
         type: String,
         enum: ['easy', 'medium', 'hard'],
         default: 'medium'
     },
-    subjects: [{
+    explanation: {
         type: String,
-        required: true
-    }],
-    // companies: [{
-    //     type: String,
-    //     required: true
-    // }],
-    companies: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Company',
-        required: true
-    }],
-    created_at: {
-        type: Date,
-        default: Date.now
-    },
-    updated_at: {
-        type: Date,
-        default: Date.now
+        default: ''
     }
+}, {
+    timestamps: true
 });
 
+// Optional text index for search (question search/autocomplete)
+QuestionSchema.index({ questionText: 'text' });
 
-module.exports = mongoose.model('Question', QuestionSchema);
+export default mongoose.model('Question', QuestionSchema);

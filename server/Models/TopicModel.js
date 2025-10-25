@@ -1,22 +1,32 @@
-const mongoose = require('mongoose');
+// models/Topic.js
+import mongoose from 'mongoose';
 
-const TopicSchema = new mongoose.Schema({
+const { Schema } = mongoose;
+
+const TopicSchema = new Schema({
     name: {
         type: String,
         required: true,
-        unique: true,
         trim: true
     },
     description: {
-        type: String
+        type: String,
+        default: ''
+    },
+    category: {
+        type: Schema.Types.ObjectId,
+        ref: 'Category',
+        required: true
     },
     subjects: [{
-        type: String
-    }],
-    created_at: {
-        type: Date,
-        default: Date.now
-    }
+        type: String,
+        trim: true
+    }]
+}, {
+    timestamps: true
 });
 
-module.exports = mongoose.model('Topic', TopicSchema);
+// Ensure topic names are unique within a category
+TopicSchema.index({ name: 1, category: 1 }, { unique: true });
+
+export default mongoose.model('Topic', TopicSchema);

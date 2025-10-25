@@ -1,7 +1,10 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
+// models/User.js
+import mongoose from 'mongoose';
+import bcrypt from 'bcrypt';
 
-const UserSchema = new mongoose.Schema({
+const { Schema } = mongoose;
+
+const UserSchema = new Schema({
     username: {
         type: String,
         required: true,
@@ -24,20 +27,29 @@ const UserSchema = new mongoose.Schema({
         enum: ['user', 'admin'],
         default: 'user'
     },
-    quiz_history: [{
-        type: mongoose.Schema.Types.ObjectId,
+    quizHistory: [{
+        type: Schema.Types.ObjectId,
         ref: 'QuizAttempt'
-    }],
-    created_at: {
-        type: Date,
-        default: Date.now
+    }]
+}, {
+    timestamps: true
+});
+
+// Hash password before save
+UserSchema.pre('save', async function (next) {
+    if (!this.isModified('password')) return next();
+    try {
+        const saltRounds = 10;
+        this.password = await bcrypt.hash(this.password, saltRounds);
+        next();
+    } catch (err) {
+        next(err);
     }
 });
 
-UserSchema.pre('save', async function (next) {
-    if (!this.isModified('password')) return next();
-    this.password = await bcrypt.hash(this.password, 10);
-    next();
-});
+// Instance method to compare password
+UserSchema.methods.comparePassword = async function (candidatePassword) {
+    return bcrypt.compare(candidatePassword, this.password);
+};
 
-module.exports = mongoose.model('User', UserSchema);
+export default mongoose.model('User', UserSchema);

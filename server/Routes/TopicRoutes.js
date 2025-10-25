@@ -1,7 +1,8 @@
-const express = require("express");
+// routes/TopicRoutes.js
+import express from 'express';
 const router = express.Router();
 
-const {
+import {
     createTopic,
     getAllTopics,
     getTopicById,
@@ -11,22 +12,21 @@ const {
     removeSubjectFromTopic,
     getAllSubjects,
     searchTopics
-} = require("../Controllers/TopicControllers");
+} from '../Controllers/TopicControllers.js';
 
+import { protect, admin } from '../Middleware/AuthMiddleware.js';
 
-const { protect, admin } = require("../Middleware/AuthMiddleware");
+// Public routes
+router.get('/', getAllTopics);
+router.get('/search', searchTopics);
+router.get('/subjects', getAllSubjects);
+router.get('/:id', getTopicById);
 
+// Admin routes
+router.post('/', protect, admin, createTopic);
+router.put('/:id', protect, admin, updateTopic);
+router.delete('/:id', protect, admin, deleteTopic);
+router.post('/:id/subjects', protect, admin, addSubjectToTopic);
+router.delete('/:id/subjects', protect, admin, removeSubjectFromTopic);
 
-router.get("/", getAllTopics);
-router.get("/search", searchTopics);
-router.get("/subjects", getAllSubjects);
-router.get("/:id", getTopicById);
-
-
-router.post("/", protect, admin, createTopic);
-router.put("/:id", protect, admin, updateTopic);
-router.delete("/:id", protect, admin, deleteTopic);
-router.post("/:id/subjects", protect, admin, addSubjectToTopic);
-router.delete("/:id/subjects", protect, admin, removeSubjectFromTopic);
-
-module.exports = router;
+export default router;

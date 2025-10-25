@@ -1,7 +1,8 @@
-const express = require("express");
+// routes/QuestionRoutes.js
+import express from 'express';
 const router = express.Router();
 
-const {
+import {
     createQuestion,
     getAllQuestions,
     getQuestionById,
@@ -9,25 +10,23 @@ const {
     deleteQuestion,
     getQuestionsByDifficulty,
     getQuestionsBySubject,
-    getQuestionsByCompany,
     getRandomQuestions,
     searchQuestions
-} = require("../Controllers/QuestionControllers");
+} from '../Controllers/QuestionControllers.js';
 
-        
-const { protect, admin } = require("../Middleware/AuthMiddleware");
+import { protect, admin } from '../Middleware/AuthMiddleware.js';
 
+// Public routes
+router.get('/', getAllQuestions);
+router.get('/search', searchQuestions);
+router.get('/random', getRandomQuestions);
+router.get('/difficulty/:difficulty', getQuestionsByDifficulty);
+router.get('/subject/:subject', getQuestionsBySubject);
+router.get('/:id', getQuestionById);
 
-router.get("/", getAllQuestions);
-router.get("/search", searchQuestions);
-router.get("/random", getRandomQuestions);
-router.get("/difficulty/:difficulty", getQuestionsByDifficulty);
-router.get("/subject/:subject", getQuestionsBySubject);
-router.get("/company/:companyId", getQuestionsByCompany);
-router.get("/:id", getQuestionById);
+// Admin routes
+router.post('/', protect, admin, createQuestion);
+router.put('/:id', protect, admin, updateQuestion);
+router.delete('/:id', protect, admin, deleteQuestion);
 
-router.post("/", protect, admin, createQuestion);
-router.put("/:id", protect, admin, updateQuestion);
-router.delete("/:id", protect, admin, deleteQuestion);
-
-module.exports = router;
+export default router;

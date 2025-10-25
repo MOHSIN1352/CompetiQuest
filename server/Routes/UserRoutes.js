@@ -1,23 +1,25 @@
-const express = require("express");
+// routes/UserRoutes.js
+import express from 'express';
 const router = express.Router();
 
-const { 
-    getUserProfile, 
-    updateUserProfile, 
-    changePassword, 
-    getUserQuizHistory, 
-    deleteUser, 
-    getAllUsers 
-} = require("../Controllers/UserControllers");
+import {
+  getUserProfile,
+  updateUserProfile,
+  changePassword,
+  getUserQuizHistory,
+  deleteUser,
+  getAllUsers
+} from '../Controllers/UserControllers.js';
 
-const { protect, admin } = require("../Middleware/AuthMiddleware");
+import { protect, admin } from '../Middleware/AuthMiddleware.js';
 
-router.get("/profile", protect, getUserProfile);
-router.put("/profile", protect, updateUserProfile);
-router.put("/change-password", protect, changePassword);
-router.get("/quiz-history", protect, getUserQuizHistory);
-router.delete("/delete", protect, deleteUser);
+router.get('/profile', protect, getUserProfile);
+router.put('/profile', protect, updateUserProfile);
+router.put('/change-password', protect, changePassword);
+router.get('/quiz-history', protect, getUserQuizHistory);
+router.delete('/delete', protect, deleteUser);
 
-router.get("/all", protect, admin, getAllUsers);
+// Admin routes
+router.get('/all', protect, admin, getAllUsers);
 
-module.exports = router;
+export default router;
