@@ -6,9 +6,10 @@
 1. [Authentication](#authentication)
 2. [Users](#users)
 3. [Categories](#categories)
-4. [Topics](#topics)
-5. [Questions](#questions)
-6. [Quizzes](#quizzes)
+4. [Companies](#companies)
+5. [Topics](#topics)
+6. [Questions](#questions)
+7. [Quizzes](#quizzes)
 
 ---
 
@@ -209,7 +210,83 @@
 
 ---
 
-## 4. Topics
+## 4. Companies
+
+**Admin-only actions require Authorization header.**
+
+### **Create Company (Admin)**
+
+* **URL:** `/api/companies`
+* **Method:** `POST`
+* **Payload:**
+
+```json
+{
+  "name": "Google",
+  "description": "Technology company",
+  "website": "https://www.google.com"
+}
+```
+
+* **Response (201 Created):** Company object
+
+### **Get All Companies**
+
+* **URL:** `/api/companies`
+* **Method:** `GET`
+* **Query Params:** `page`, `limit`, `search`
+* **Response (200 OK):**
+
+```json
+{
+  "companies": [...],
+  "totalPages": 5,
+  "currentPage": 1,
+  "total": 50
+}
+```
+
+### **Get Company By ID**
+
+* **URL:** `/api/companies/:id`
+* **Method:** `GET`
+* **Response (200 OK):** Company object
+
+### **Search Companies**
+
+* **URL:** `/api/companies/search?q=google`
+* **Method:** `GET`
+* **Response (200 OK):** Array of matching companies (max 10)
+
+### **Update Company (Admin)**
+
+* **URL:** `/api/companies/:id`
+* **Method:** `PUT`
+* **Payload:**
+
+```json
+{
+  "name": "Updated Company Name",
+  "description": "Updated description",
+  "website": "https://updated-url.com"
+}
+```
+
+* **Response (200 OK):** Updated company object
+
+### **Delete Company (Admin)**
+
+* **URL:** `/api/companies/:id`
+* **Method:** `DELETE`
+* **Response (200 OK):**
+
+```json
+{ "message": "Company deleted successfully" }
+```
+
+---
+
+## 5. Topics
 
 ### **Create Topic (Admin)**
 
@@ -264,7 +341,7 @@
 
 ---
 
-## 5. Questions
+## 6. Questions
 
 ### **Create Question (Admin)**
 
@@ -313,11 +390,11 @@
 
 ---
 
-## 6. Quizzes
+## 7. Quizzes
 
 ### **Start Quiz**
 
-* **URL:** `/api/quizzes/start`
+* **URL:** `/api/quiz/start`
 * **Method:** `POST`
 * **Payload:**
 
@@ -334,7 +411,7 @@
 
 ### **Submit Quiz**
 
-* **URL:** `/api/quizzes/submit`
+* **URL:** `/api/quiz/submit`
 * **Method:** `POST`
 * **Payload:**
 
@@ -352,34 +429,62 @@
 
 ### **Get Quiz Attempt**
 
-* **URL:** `/api/quizzes/attempt/:id`
+* **URL:** `/api/quiz/attempt/:id`
 * **Method:** `GET`
 
 ### **Get User Quiz History**
 
-* **URL:** `/api/quizzes/history`
+* **URL:** `/api/quiz/history`
 * **Method:** `GET`
 * **Query Params:** `page`, `limit`
 
 ### **Get User Quiz Stats**
 
-* **URL:** `/api/quizzes/stats`
+* **URL:** `/api/quiz/stats`
 * **Method:** `GET`
+* **Response (200 OK):**
+
+```json
+{
+  "totalAttempts": 15,
+  "averageScore": 7.5,
+  "averagePercentage": 75.0,
+  "bestScore": 10,
+  "bestPercentage": 100.0
+}
+```
 
 ### **Get Leaderboard**
 
-* **URL:** `/api/quizzes/leaderboard`
+* **URL:** `/api/quiz/leaderboard`
 * **Method:** `GET`
-* **Query Params:** `topic`, `limit`
+* **Query Params:** `topicId` (optional), `limit` (default: 10)
+* **Response (200 OK):**
+
+```json
+[
+  {
+    "userId": "64f123abc...",
+    "username": "john_doe",
+    "email": "john@example.com",
+    "totalAttempts": 20,
+    "averageScore": 8.5,
+    "averagePercentage": 85.0,
+    "bestScore": 10,
+    "bestPercentage": 100.0
+  },
+  ...
+]
+```
 
 ### **Delete Quiz Attempt**
 
-* **URL:** `/api/quizzes/attempt/:id`
+* **URL:** `/api/quiz/attempt/:id`
 * **Method:** `DELETE`
 
 ### **Get All Quiz Attempts (Admin)**
 
-* **URL:** `/api/quizzes/all`
+* **URL:** `/api/quiz/all`
 * **Method:** `GET`
 * **Query Params:** `user`, `topic`, `page`, `limit`
 

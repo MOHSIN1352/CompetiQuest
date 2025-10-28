@@ -208,3 +208,92 @@ export const deleteQuizAttempt = async (req, res) => {
         res.status(500).json({ message: 'Server Error', error: error.message });
     }
 };
+
+// Get user quiz statistics
+export const getUserQuizStats = async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        const quizAttempts = await QuizAttempt.find({ user: userId });
+
+        if (quizAttempts.length === 0) {
+            return res.status(200).json({
+                totalAttempts: 0,
+                averageScore: 0,
+                averagePercentage: 0,
+                bestScore: 0,
+                bestPercentage: 0
+            });
+        }
+
+        const totalAttempts = quizAttempts.length;
+        const totalScore = quizAttempts.reduce((sum, attempt) => sum + attempt.score, 0);
+        const totalPercentage = quizAttempts.reduce((sum, attempt) => sum + attempt.percentage, 0);
+        const bestScore = Math.max(...quizAttempts.map(attempt => attempt.score));
+        const bestPercentage = Math.max(...quizAttempts.map(attempt => attempt.percentage));
+
+        res.status(200).json({
+            totalAttempts,
+            averageScore: Math.round((totalScore / totalAttempts) * 100) / 100,
+            averagePercentage: Math.round((totalPercentage / totalAttempts) * 100) / 100,
+            bestScore,
+            bestPercentage: Math.round(bestPercentage * 100) / 100
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error', error: error.message });
+    }
+};
+
+// Get leaderboard
+export const getLeaderboard = async (req, res) => {
+    try {
+        const { limit = 10, topicId } = req.query;
+        let matchQuery = {};
+
+        if (topicId) {
+            matchQuery.topic = topicId;
+        }
+
+        const leaderboard = await QuizAttempt.aggregate([
+            { $match: matchQuery },
+            {
+                $group: {
+                    _id: '$user',
+                    totalAttempts: { $sum: 1 },
+                    averageScore: { $avg: '$score' },
+                    averagePercentage: { $avg: '$percentage' },
+                    bestScore: { $max: '$score' },
+                    bestPercentage: { $max: '$percentage' }
+                }
+            },
+            { $sort: { bestPercentage: -1, averagePercentage: -1 } },
+            { $limit: parseInt(limit) },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'userDetails'
+                }
+            },
+            { $unwind: '$userDetails' },
+            {
+                $project: {
+                    _id: 0,
+                    userId: '$_id',
+                    username: '$userDetails.username',
+                    email: '$userDetails.email',
+                    totalAttempts: 1,
+                    averageScore: { $round: ['$averageScore', 2] },
+                    averagePercentage: { $round: ['$averagePercentage', 2] },
+                    bestScore: 1,
+                    bestPercentage: { $round: ['$bestPercentage', 2] }
+                }
+            }
+        ]);
+
+        res.status(200).json(leaderboard);
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error', error: error.message });
+    }
+};

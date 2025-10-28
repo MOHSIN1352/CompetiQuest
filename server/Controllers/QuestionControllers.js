@@ -199,3 +199,23 @@ export const searchQuestions = async (req, res) => {
         res.status(500).json({ message: 'Server Error', error: error.message });
     }
 };
+
+// Get random questions
+export const getRandomQuestions = async (req, res) => {
+    try {
+        const { count = 10, difficulty, subjects } = req.query;
+        let query = {};
+
+        if (difficulty) query.difficulty = difficulty;
+        if (subjects) query.subjects = { $in: subjects.split(',') };
+
+        const questions = await Question.aggregate([
+            { $match: query },
+            { $sample: { size: parseInt(count) } }
+        ]);
+
+        res.status(200).json(questions);
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error', error: error.message });
+    }
+};

@@ -1,9 +1,9 @@
-const express = require('express');
-const dotenv = require('dotenv');
-const connectDB = require('./Database/Connection.js');
-const cors = require('cors');
+import express, { json } from 'express';
+import { config } from 'dotenv';
+import connectDB from './Database/Connection.js';
+import cors from 'cors';
 
-dotenv.config();
+config();
 
 // Connect to MongoDB
 connectDB();
@@ -12,17 +12,16 @@ const app = express();
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(json());
 
 // Routes
-const authRoutes = require('./Routes/AuthRoutes.js');
-const userRoutes = require('./Routes/UserRoutes.js');
-const companyRoutes = require('./Routes/CompanyRoutes.js');
-const topicRoutes = require('./Routes/TopicRoutes.js');
-const questionRoutes = require('./Routes/QuestionRoutes.js');
-const quizRoutes = require('./Routes/QuizRoutes.js');
-const categoryRoutes = require('./Routes/CategoryRoutes.js');
-const categoryRoutes = require('./Routes/CategoryRoutes.js');
+import authRoutes from './Routes/AuthRoutes.js';
+import userRoutes from './Routes/UserRoutes.js';
+import companyRoutes from './Routes/CompanyRoutes.js';
+import topicRoutes from './Routes/TopicRoutes.js';
+import questionRoutes from './Routes/QuestionRoutes.js';
+import quizRoutes from './Routes/QuizRoutes.js';
+import categoryRoutes from './Routes/CategoryRoutes.js';
 
 // API Endpoints
 app.use('/api/auth', authRoutes);
@@ -45,7 +44,7 @@ app.use((err, req, res, next) => {
 });
 
 // 404 Handler
-app.use('*', (req, res) => {
+app.use((req, res) => {
     res.status(404).json({ message: 'Route not found' });
 });
 

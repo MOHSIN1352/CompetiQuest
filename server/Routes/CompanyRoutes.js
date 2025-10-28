@@ -1,17 +1,17 @@
-const express = require("express");
+import express from 'express';
 const router = express.Router();
 
-const {
+import {
     createCompany,
     getAllCompanies,
     getCompanyById,
     updateCompany,
     deleteCompany,
     searchCompanies
-} = require("../Controllers/CompanyControllers");
+} from '../Controllers/CompanyControllers.js';
 
     
-const { protect, admin } = require("../Middleware/AuthMiddleware");
+import { protect, admin } from '../Middleware/AuthMiddleware.js';
 
 
 router.get("/", getAllCompanies);
@@ -23,4 +23,4 @@ router.post("/", protect, admin, createCompany);
 router.put("/:id", protect, admin, updateCompany);
 router.delete("/:id", protect, admin, deleteCompany);
 
-module.exports = router;
+export default router;

@@ -1,6 +1,6 @@
-const Company = require('../Models/CompanyModel');
+import Company from '../Models/CompanyModel.js';
 
-exports.createCompany = async (req, res) => {
+export const createCompany = async (req, res) => {
     try {
         const { name, description, website } = req.body;
 
@@ -25,7 +25,7 @@ exports.createCompany = async (req, res) => {
     }
 };
 
-exports.getAllCompanies = async (req, res) => {
+export const getAllCompanies = async (req, res) => {
     try {
         const { page = 1, limit = 10, search } = req.query;
         
@@ -58,7 +58,7 @@ exports.getAllCompanies = async (req, res) => {
     }
 };
 
-exports.getCompanyById = async (req, res) => {
+export const getCompanyById = async (req, res) => {
     try {
         const company = await Company.findById(req.params.id);
         
@@ -72,7 +72,7 @@ exports.getCompanyById = async (req, res) => {
     }
 };
 
-exports.updateCompany = async (req, res) => {
+export const updateCompany = async (req, res) => {
     try {
         const { name, description, website } = req.body;
         const company = await Company.findById(req.params.id);
@@ -100,7 +100,7 @@ exports.updateCompany = async (req, res) => {
     }
 };
 
-exports.deleteCompany = async (req, res) => {
+export const deleteCompany = async (req, res) => {
     try {
         const company = await Company.findById(req.params.id);
         
@@ -115,7 +115,7 @@ exports.deleteCompany = async (req, res) => {
     }
 };
 
-exports.searchCompanies = async (req, res) => {
+export const searchCompanies = async (req, res) => {
     try {
         const { q } = req.query;
         
