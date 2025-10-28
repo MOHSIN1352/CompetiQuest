@@ -2,14 +2,15 @@
 
 ## Overview
 
-The CompetiQuest backend is built using **Node.js**, **Express**, and **MongoDB**. It provides APIs for user authentication, quiz management, question handling, topic and category management. It supports both **user** and **admin** roles.
+The CompetiQuest backend is built using **Node.js**, **Express 5**, and **MongoDB**. It provides APIs for user authentication, quiz management, question handling, topic, category, and company management. It supports both **user** and **admin** roles.
 
 Key features include:
 
 - User registration, login, and profile management
 - Category and topic management
+- Company management
 - Question CRUD and retrieval
-- Quiz generation, submission, scoring, and leaderboard
+- Quiz generation, submission, scoring, leaderboard, and user statistics
 - Admin-only endpoints for analytics and management
 
 ---
@@ -38,6 +39,14 @@ Key features include:
   - `description`
   - `subjects` → array of strings
 - Associated with a category.
+
+### **Company**
+- Represents companies for company-based quiz categorization.
+- Fields:
+  - `name` (unique)
+  - `description`
+  - `website`
+  - `created_at`
 
 ### **Question**
 - Stores questions for quizzes.
@@ -81,6 +90,13 @@ Key features include:
 - Controller: `CategoryController.js`
 - Middleware: `protect`, `admin`
 
+### **Company Routes**
+- `/api/companies` → CRUD companies
+- `/api/companies/search` → search companies
+- `/api/companies/:id` → get/update/delete company by ID
+- Controller: `CompanyController.js`
+- Middleware: `protect`, `admin` for modifications
+
 ### **Topic Routes**
 - `/api/topics` → CRUD topics
 - `/api/topics/:id/subjects` → manage subjects
@@ -92,21 +108,21 @@ Key features include:
 ### **Question Routes**
 - `/api/questions` → CRUD questions
 - `/api/questions/search` → search questions
-- `/api/questions/random` → get random questions
+- `/api/questions/random` → get random questions (supports filtering by difficulty and subjects)
 - `/api/questions/difficulty/:difficulty` → filter by difficulty
 - `/api/questions/subject/:subject` → filter by subject
 - Controller: `QuestionController.js`
 - Middleware: `protect`, `admin` for modifications
 
 ### **Quiz Routes**
-- `/api/quizzes/start` → generate quiz attempt
-- `/api/quizzes/submit` → submit answers and calculate score
-- `/api/quizzes/history` → get user quiz history
-- `/api/quizzes/stats` → get user statistics
-- `/api/quizzes/leaderboard` → global leaderboard
-- `/api/quizzes/attempt/:id` → get specific quiz attempt
-- `/api/quizzes/all` → admin: get all quiz attempts
-- `/api/quizzes/attempt/:id` (DELETE) → delete quiz attempt
+- `/api/quiz/start` → generate quiz attempt
+- `/api/quiz/submit` → submit answers and calculate score
+- `/api/quiz/history` → get user quiz history
+- `/api/quiz/stats` → get user statistics (total attempts, average scores, best scores)
+- `/api/quiz/leaderboard` → global leaderboard (supports filtering by topic)
+- `/api/quiz/attempt/:id` → get specific quiz attempt
+- `/api/quiz/all` → admin: get all quiz attempts
+- `/api/quiz/attempt/:id` (DELETE) → delete quiz attempt
 - Controller: `QuizController.js`
 - Middleware: `protect`, `admin` for restricted endpoints
 
@@ -137,6 +153,15 @@ Login:
 
 ---
 
+### **Company Management**
+1. Admin creates companies with name, description, and website.
+2. Companies support search functionality.
+3. Company data can be updated or deleted by admins.
+4. Public endpoints allow users to view and search companies.
+5. Pagination supported for listing all companies.
+
+---
+
 ### **Question Management**
 1. Admin creates questions with options, difficulty, subjects.
 2. Question can be associated with one or multiple subjects.
@@ -147,14 +172,14 @@ Login:
 
 ### **Quiz Flow**
 #### **Start Quiz**
-1. User POSTs to `/quizzes/start` with `topicId`, optional `difficulty`, `subjects`, `questionCount`.
+1. User POSTs to `/api/quiz/start` with `topicId`, optional `difficulty`, `subjects`, `questionCount`.
 2. Backend queries `Question` collection using filters.
-3. Questions sampled randomly.
+3. Questions sampled randomly using MongoDB's `$sample` aggregation.
 4. QuizAttempt document created with `selected_option_index = null` for all questions.
 5. QuizAttempt ID returned to frontend along with questions (correct answers hidden).
 
 #### **Submit Quiz**
-1. User POSTs to `/quizzes/submit` with `quizAttemptId` and `answers`.
+1. User POSTs to `/api/quiz/submit` with `quizAttemptId` and `answers`.
 2. Backend verifies user owns attempt.
 3. Compares each selected option with correct answer.
 4. Updates `is_correct` and `selected_option_index`.
@@ -162,10 +187,10 @@ Login:
 6. Saves QuizAttempt and updates user's `quiz_history`.
 
 #### **Get Quiz Attempt / History / Stats**
-- GET `/quizzes/attempt/:id` → fetch single attempt
-- GET `/quizzes/history` → fetch user's all attempts
-- GET `/quizzes/stats` → aggregate statistics per user (total attempts, avg score, per topic breakdown)
-- GET `/quizzes/leaderboard` → aggregates highest scores across all users or filtered by topic
+- GET `/api/quiz/attempt/:id` → fetch single attempt
+- GET `/api/quiz/history` → fetch user's all attempts with pagination
+- GET `/api/quiz/stats` → aggregate statistics per user (total attempts, average score, average percentage, best score, best percentage)
+- GET `/api/quiz/leaderboard` → aggregates highest scores across all users or filtered by topic, showing username, email, and performance metrics
 
 ---
 
@@ -187,14 +212,28 @@ Login:
 ## 5. Notes & Considerations
 - Passwords are securely hashed with bcrypt.
 - JWT tokens expire in 30 days.
-- ES Modules (`import/export`) used consistently across controllers.
+- **ES Modules (`import/export`)** used consistently across all controllers, models, routes, and middleware.
+- **Express 5** used with updated syntax (removed wildcard `*` route pattern for 404 handler).
 - Pagination, search, and filtering implemented for all list endpoints.
-- Company logic removed for simplicity.
-- All date fields (`created_at`, `updated_at`) tracked for audit purposes.
+- Company management fully implemented for company-based categorization.
+- All date fields (`created_at`, `updated_at`, `attempted_at`) tracked for audit purposes.
 
 ---
 
-## 6. Recommended Enhancements
+## 6. Recent Fixes & Updates
+- **Fixed import paths**: Changed `User.js` to `UserModel.js` in AuthMiddleware
+- **Added missing exports**: Implemented `getRandomQuestions`, `getUserQuizStats`, and `getLeaderboard` functions
+- **Converted to ES Modules**: 
+  - CompanyRoutes.js
+  - CompanyControllers.js
+  - CompanyModel.js
+  - Database/Connection.js
+- **Express 5 compatibility**: Updated 404 handler to remove unsupported `*` wildcard route
+- **Database connection**: Uses ES module syntax for MongoDB connection
+
+---
+
+## 7. Recommended Enhancements
 - Add **rate limiting** for endpoints like `/auth/login`.
 - Consider **caching popular questions** for performance.
 - Implement **quiz timer logic** if needed.
