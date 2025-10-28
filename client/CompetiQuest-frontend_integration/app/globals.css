@@ -1,0 +1,190 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* Light Mode Theme - Updated to Match Mockup */
+:root {
+  --radius: 0.625rem;
+
+  /* 60% Primary/Background */
+  --background: oklch(0.98 0.004 95); /* Soft neutral white instead of pure white */
+  --foreground: oklch(0.232 0.015 30); /* Dark Brown/Black */
+
+  /* 30% Secondary */
+  --secondary: oklch(0.96 0.015 95); /* Slightly darker ivory for better separation */
+  --secondary-foreground: oklch(0.35 0.05 30);
+
+  /* 10% Accent */
+  --accent: oklch(0.536 0.17 21.3); /* #bb5052 */
+  --accent-foreground: oklch(1 0 0); /* White */
+
+  --primary: var(--background);
+  --primary-foreground: var(--foreground);
+
+  --card: var(--background);
+  --card-foreground: var(--foreground);
+
+  --popover: var(--background);
+  --popover-foreground: var(--foreground);
+
+  --muted: oklch(0.95 0.03 90);
+  --muted-foreground: oklch(0.4 0.01 30);
+
+  --destructive: oklch(0.577 0.245 27.325);
+
+  --border: oklch(0.7 0.02 240); /* Light Gray */
+  --input: oklch(0.95 0.03 90);
+  --ring: oklch(0.536 0.17 21.3 / 0.6);
+  --square-border-color: oklch(from var(--foreground) l c h / 0.01);
+  --accent-glow: rgba(188, 55, 68, 0.15);
+}
+
+/* Dark Mode Theme - Adjusted Secondary Contrast */
+.dark {
+  /* 60% Primary/Background */
+  --background: oklch(0.22 0 0); /* Slightly warmer dark gray */
+  --foreground: oklch(0.996 0.011 109.3); /* ivory */
+
+  /* 30% Secondary */
+  --secondary: oklch(0.28 0.005 260); /* Lighter than background for clear separation */
+  --secondary-foreground: var(--foreground);
+
+  /* 10% Accent */
+  --accent: #bb5054;
+  --accent-foreground: var(--background);
+
+  --primary: var(--background);
+  --primary-foreground: var(--foreground);
+
+  --card: oklch(0.25 0.003 260); /* Dark gray but distinct */
+  --card-foreground: var(--foreground);
+
+  --popover: var(--card);
+  --popover-foreground: var(--foreground);
+
+  --muted: oklch(0.21 0.002 60); /* #252524 */
+  --muted-foreground: oklch(0.66 0.015 65); /* #9D9592 */
+
+  --destructive: oklch(0.536 0.17 24.3); /* #bb5052 */
+
+  --border: oklch(0.38 0.005 260);
+  --input: oklch(0.3 0.005 260);
+  --ring: oklch(0.536 0.17 21.3 / 0.6);
+  --square-border-color: oklch(from var(--foreground) l c h / 0.05);
+  --accent-glow: rgba(187, 80, 82, 0.15);
+}
+
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+:root {
+  --scrollbar-track: oklch(from var(--secondary) l c h / 0.5);
+}
+
+.dark {
+  --scrollbar-track: oklch(from var(--secondary) l c h / 0.5);
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 10px;
+  border: 3px solid var(--scrollbar-track);
+}
+::-webkit-scrollbar-thumb:hover {
+  opacity: 0.8;
+}
+
+/* Adds a subtle dot-grid pattern */
+.main-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    circle at center,
+    oklch(from var(--foreground) l c h / 0.05) 1px,
+    transparent 1px
+  );
+  background-size: 2rem 2rem;
+  z-index: 1;
+}
+
+/* New: Animated scanline grid effect */
+.scanline-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background-image: linear-gradient(
+    to bottom,
+    oklch(from var(--foreground) l c h / 0.1) 1px,
+    transparent 1px
+  );
+  background-size: 100% 10px;
+  animation: scanline-move 60s linear infinite;
+  pointer-events: none;
+}
+
+/* Updated: Keyframes for the aurora animation (includes rotation) */
+@keyframes aurora {
+  0% {
+    transform: translate(var(--start-x), var(--start-y)) scale(1) rotate(0deg);
+  }
+  50% {
+    transform: translate(var(--end-x), var(--end-y)) scale(1.4) rotate(15deg);
+  }
+  100% {
+    transform: translate(var(--start-x), var(--start-y)) scale(1) rotate(0deg);
+  }
+}
+
+/* New: Keyframes for the scanline animation */
+@keyframes scanline-move {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 0 -200px;
+  }
+}

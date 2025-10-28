@@ -1,0 +1,1 @@
+// If you want a default view when subcategory is clicked
