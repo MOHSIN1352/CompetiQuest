@@ -21,15 +21,17 @@ import {
 } from "react-icons/fi";
 import { useTheme } from "../app/context/ThemeContext";
 import Image from "next/image";
+import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
 
 const NavLink = ({ children, href }) => (
-  <a
+  <Link
     href={href}
     className="text-base font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 relative group"
   >
     {children}
     <span className="absolute -bottom-1 left-0 w-full h-[1.5px] bg-accent scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
-  </a>
+  </Link>
 );
 
 const CategoryDropdown = () => {
@@ -61,13 +63,13 @@ const CategoryDropdown = () => {
       {isOpen && (
         <div className="absolute top-full pt-2 w-48 bg-background/95 backdrop-blur-xl border border-border rounded-lg shadow-lg py-2">
           {categories.map((cat) => (
-            <a
+            <Link
               key={cat}
               href={`/${cat.toLowerCase().replace(/ /g, "_")}`}
               className="block px-4 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground"
             >
               {cat}
-            </a>
+            </Link>
           ))}
         </div>
       )}
@@ -170,67 +172,67 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
           </div>
 
           <nav className="flex-grow px-4 space-y-1.5 overflow-y-auto">
-            <a
+            <Link
               href="/"
               className="flex items-center gap-3 py-2.5 px-4 hover:bg-accent/10 hover:text-accent rounded-md transition-colors duration-200"
               onClick={closeSidebar}
             >
               <FiHome /> Home
-            </a>
-            <a
+            </Link>
+            <Link
               href="/profile"
               className="flex items-center gap-3 py-2.5 px-4 hover:bg-accent/10 hover:text-accent rounded-md transition-colors duration-200"
               onClick={closeSidebar}
             >
               <FiUser /> User Profile
-            </a>
-            <a
+            </Link>
+            <Link
               href="/mental_maths"
               className="flex items-center gap-3 py-2.5 px-4 hover:bg-accent/10 hover:text-accent rounded-md transition-colors duration-200"
               onClick={closeSidebar}
             >
               <FiZap /> Mental Maths
-            </a>
+            </Link>
             {Object.entries(categories).map(([title, { icon, subItems }]) => (
               <SidebarDropdown key={title} title={title} icon={icon}>
                 {subItems.map((item) => (
-                  <a
+                  <Link
                     key={item}
                     href={`/${formatUrl(title)}/${formatUrl(item)}/page1`}
                     className="block py-1.5 px-4 text-sm text-muted-foreground hover:text-accent rounded-md hover:bg-accent/10"
                     onClick={closeSidebar}
                   >
                     {item}
-                  </a>
+                  </Link>
                 ))}
               </SidebarDropdown>
             ))}
 
-            <a
+            <Link
               href="/#about-us"
               className="flex items-center gap-3 py-2.5 px-4 hover:bg-accent/10 hover:text-accent rounded-md transition-colors duration-200"
               onClick={closeSidebar}
             >
               <FiInfo /> About
-            </a>
-            <a
+            </Link>
+            <Link
               href="/#contact-us"
               className="flex items-center gap-3 py-2.5 px-4 hover:bg-accent/10 hover:text-accent rounded-md transition-colors duration-200"
               onClick={closeSidebar}
             >
               <FiMail /> Contact
-            </a>
+            </Link>
           </nav>
 
           <div className="p-4 border-t border-border/50">
-            <a
+            <Link
               href="/login"
               onClick={closeSidebar}
               className="w-full flex items-center justify-center gap-3 py-2.5 px-4 bg-accent/10 hover:bg-accent text-accent hover:text-accent-foreground rounded-lg font-semibold transition-colors"
             >
               <FiLogIn />
               <span>Login</span>
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -241,6 +243,30 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
 export default function Navbar() {
   const { darkMode, toggleDarkMode } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const authButton = user ? (
+    <div className="hidden sm:flex items-center space-x-4">
+      <Link
+        href="/profile"
+        className="relative p-2.5 rounded-full hover:bg-accent/10 hover:text-accent transition-colors duration-200"
+      >
+        <FiUser />
+      </Link>
+      <button
+        onClick={logout}
+        className="px-6 py-2 bg-red-500/20 text-red-500 font-semibold rounded-lg hover:bg-red-500 hover:text-white transition-colors duration-300"
+      >
+        Logout
+      </button>
+    </div>
+  ) : (
+    <Link
+      href="/login"
+      className="hidden sm:block px-6 py-2 bg-accent/20 text-accent font-semibold rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors duration-300"
+    >
+      Login
+    </Link>
+  );
 
   return (
     <>
@@ -254,7 +280,7 @@ export default function Navbar() {
               >
                 <FiMenu size={24} />
               </button>
-              <a href="/" className="flex items-center gap-2">
+              <Link href="/" className="flex items-center gap-2">
                 <Image
                   src={darkMode ? "/Dark_Logo.png" : "/Light_Logo.png"}
                   alt="Logo"
@@ -265,7 +291,7 @@ export default function Navbar() {
                   <span className="text-foreground">Competi</span>
                   <span className="text-accent">Quest</span>
                 </span>
-              </a>
+              </Link>
             </div>
 
             <div className="hidden min-[900px]:flex items-center space-x-8">
@@ -294,12 +320,13 @@ export default function Navbar() {
                   size={18}
                 />
               </button>
-              <a
+              {/* <Link
                 href="/login"
                 className="hidden sm:block px-6 py-2 bg-accent/20 text-accent font-semibold rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors duration-300"
               >
                 Login
-              </a>
+              <Link> */}
+              {authButton}
             </div>
           </div>
         </nav>

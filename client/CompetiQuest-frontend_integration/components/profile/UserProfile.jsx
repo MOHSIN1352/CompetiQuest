@@ -9,6 +9,7 @@ import {
 } from "react-icons/fi";
 import { useTheme } from "../../app/context/ThemeContext";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
 
 let MotionDiv;
 let MotionSpan;
@@ -35,6 +36,7 @@ export default function UserProfile() {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [showYearDropdown, setShowYearDropdown] = useState(false);
   const { darkMode } = useTheme();
+  const { user } = useAuth();
 
   const primaryColor = "oklch(0.536 0.17 21.3)";
 
@@ -198,7 +200,7 @@ export default function UserProfile() {
         <div
           className={`${
             darkMode ? "bg-secondary/50" : "bg-white"
-          } rounded-2xl shadow-md p-4 md:p-6 flex items-center border border-border/50 w-full lg:w-1/2 ml-6`}
+          } rounded-2xl shadow-md p-4 md:p-6 flex items-center border border-border/50 w-full lg:w-1/2 `}
         >
           <img
             src="/profile_photo.png"
@@ -207,7 +209,7 @@ export default function UserProfile() {
           />
           <div className="ml-5 md:ml-8">
             <h2 className="text-lg md:text-xl font-semibold text-foreground">
-              {profile.username}
+              {user.username}
             </h2>
             <Link href="/profile/edit">
               <button className="mt-3 flex items-center gap-2 px-4 md:px-6 py-2 bg-accent/20 text-accent font-semibold rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors duration-300 text-sm md:text-base">

@@ -10,8 +10,8 @@ import { useTheme } from "../../context/ThemeContext";
 
 export default function EditProfile() {
   const [formData, setFormData] = useState({
-    name: "Kavyaa11",
-    email: "kavya@example.com",
+    name: "",
+    email: "",
     password: "",
     confirmPassword: "",
   });
@@ -57,7 +57,9 @@ export default function EditProfile() {
       <div
         style={{ boxShadow: shadowStyle }}
         className={`relative max-w-2xl w-full rounded-2xl p-6 sm:p-8 border ${
-          darkMode ? "bg-secondary/30 border-border/50" : "bg-white border-gray-200"
+          darkMode
+            ? "bg-secondary/30 border-border/50"
+            : "bg-white border-gray-200"
         }`}
       >
         {/* Header */}
@@ -80,10 +82,7 @@ export default function EditProfile() {
         >
           <FiX size={20} />
         </button>
-          <hr
-          className={`mb-6 border border-border`}
-        />
-
+        <hr className={`mb-6 border border-border`} />
 
         {/* Form */}
         <form onSubmit={handleUpdateProfile} className="space-y-6">
@@ -133,9 +132,7 @@ export default function EditProfile() {
             </div>
           </div>
 
-          <hr
-            className={`my-6 border border-border`}
-          />
+          <hr className={`my-6 border border-border`} />
 
           {/* Username & Email */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -238,9 +235,7 @@ export default function EditProfile() {
               type="button"
               onClick={() => router.back()}
               className={`px-6 py-2 font-semibold rounded-lg transition-colors duration-300 border-2 border-accent text-accent hover:bg-accent ${
-                darkMode
-                  ? "hover:text-black"
-                  : "hover:text-white"
+                darkMode ? "hover:text-black" : "hover:text-white"
               }`}
             >
               Cancel
@@ -248,9 +243,7 @@ export default function EditProfile() {
           </div>
 
           {/* Deactivate */}
-          <hr
-            className={`my-6 border border-border`}
-          />
+          <hr className={`my-6 border border-border`} />
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between">
             <div className="mb-4 sm:mb-0">
               <h3

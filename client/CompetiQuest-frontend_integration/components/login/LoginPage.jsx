@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
+import { useAuth } from "@/context/AuthContext";
 
 const LoginPage = ({ visible, handleFlip }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -13,6 +14,8 @@ const LoginPage = ({ visible, handleFlip }) => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { setUser } = useAuth();
+
   // ✅ Form validation
   const validate = () => {
     const newErrors = {};
@@ -48,9 +51,9 @@ const LoginPage = ({ visible, handleFlip }) => {
       );
 
       if (response.status === 200) {
-        toast.success("🎉 Logged in successfully!");
+        toast.success(" Logged in successfully!");
         console.log("User:", response.data);
-
+        setUser(response.data); // Set the user data
         router.push("/");
       }
     } catch (error) {
@@ -179,13 +182,6 @@ const LoginPage = ({ visible, handleFlip }) => {
         </svg>
         <span className="ml-4">Log in with Google</span>
       </button>
-
-      <p
-        className="text-sm text-accent cursor-pointer mt-2"
-        onClick={handleFlip}
-      >
-        Don't have an account? Signup
-      </p>
     </div>
   );
 };
