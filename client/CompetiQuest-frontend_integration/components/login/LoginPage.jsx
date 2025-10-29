@@ -1,13 +1,19 @@
+"use client";
 import { useState } from "react";
-import { toast } from "react-hot-toast";
+import axios from "axios";
+import toast from "react-hot-toast";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
+import { useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
 
-const LoginPage = ({ visible, handleClick, handleFlip }) => {
+const LoginPage = ({ visible, handleFlip }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
-
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  // ✅ Form validation
   const validate = () => {
     const newErrors = {};
 
@@ -25,12 +31,44 @@ const LoginPage = ({ visible, handleClick, handleFlip }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleLogin = () => {
-    if (validate()) {
-      toast.success("Logged in Successfully!");
-      // Proceed with actual login
-    } else {
+  // ✅ Handle login
+  const handleLogin = async () => {
+    if (!validate()) {
       toast.error("Please fix the errors before submitting.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
+        { username, password },
+        { withCredentials: true } // optional if your API uses cookies
+      );
+
+      if (response.status === 200) {
+        toast.success("🎉 Logged in successfully!");
+        console.log("User:", response.data);
+
+        router.push("/");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+
+      if (error.response) {
+        if (error.response.status === 401) {
+          toast.error("Invalid credentials. Please try again.");
+        } else if (error.response.status === 404) {
+          toast.error("User not found. Please sign up.");
+        } else {
+          toast.error(error.response.data.message || "Something went wrong.");
+        }
+      } else {
+        toast.error("Network error. Please try again.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -88,10 +126,15 @@ const LoginPage = ({ visible, handleClick, handleFlip }) => {
       {/* Login Button */}
       <button
         type="submit"
+        disabled={loading}
         onClick={handleLogin}
-        className="w-full cursor-pointer py-3 mb-2 rounded-xl bg-accent text-accent-foreground font-semibold hover:bg-accent/50 hover:text-accent transition-colors duration-300"
+        className={`w-full cursor-pointer py-3 mb-2 rounded-xl font-semibold text-accent-foreground transition-colors duration-300 ${
+          loading
+            ? "bg-accent/50 text-muted-foreground cursor-not-allowed"
+            : "bg-accent hover:bg-accent/50 hover:text-accent"
+        }`}
       >
-        Login
+        {loading ? "Logging in..." : "Login"}
       </button>
 
       {/* OR separator */}
@@ -101,7 +144,7 @@ const LoginPage = ({ visible, handleClick, handleFlip }) => {
         <hr className="flex-grow border-zinc-700" />
       </div>
 
-      {/* Google Button */}
+      {/* Google Login */}
       <button className="cursor-pointer w-full py-3 flex items-center justify-center gap-2 rounded-xl font-semibold bg-secondary/50 border hover:bg-secondary transition-colors duration-300">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -136,14 +179,13 @@ const LoginPage = ({ visible, handleClick, handleFlip }) => {
         </svg>
         <span className="ml-4">Log in with Google</span>
       </button>
-      <div>
-        <p
-          className="text-sm text-accent cursor-pointer mt-2 "
-          onClick={handleFlip}
-        >
-          Don't have an account? Signup
-        </p>
-      </div>
+
+      <p
+        className="text-sm text-accent cursor-pointer mt-2"
+        onClick={handleFlip}
+      >
+        Don't have an account? Signup
+      </p>
     </div>
   );
 };
