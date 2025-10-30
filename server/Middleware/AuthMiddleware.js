@@ -3,27 +3,33 @@ import jwt from 'jsonwebtoken';
 import User from '../Models/UserModel.js'; // note ES module path
 
 export const protect = async (req, res, next) => {
-    let token;
+  let token;
 
-    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-        try {
-            token = req.headers.authorization.split(' ')[1];
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  // Read the token from the cookie
+  if (req.cookies && req.cookies.jwt) {
+    try {
+      token = req.cookies.jwt;
 
-            req.user = await User.findById(decoded.id).select('-password');
+      // Verify token
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-            if (!req.user) {
-                return res.status(401).json({ message: 'User not found' });
-            }
+      // Get user from the token ID
+      req.user = await User.findById(decoded.id).select("-password");
 
-            next();
-        } catch (error) {
-            console.error(error);
-            return res.status(401).json({ message: 'Not authorized, token failed' });
-        }
-    } else {
-        return res.status(401).json({ message: 'Not authorized, no token' });
+      if (!req.user) {
+        return res.status(401).json({ message: "User not found" });
+      }
+
+      next();
+    } catch (error) {
+      console.error(error);
+      return res
+        .status(401)
+        .json({ message: "Not authorized, token failed" });
     }
+  } else {
+    return res.status(401).json({ message: "Not authorized, no token" });
+  }
 };
 
 export const admin = (req, res, next) => {
