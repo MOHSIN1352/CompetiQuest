@@ -50,7 +50,6 @@ const QuestionSchema = new Schema({
     timestamps: true
 });
 
-// Optional text index for search (question search/autocomplete)
-QuestionSchema.index({ questionText: 'text' });
+
 
 export default mongoose.model('Question', QuestionSchema);

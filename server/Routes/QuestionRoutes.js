@@ -12,6 +12,7 @@ import {
   getQuestionsBySubject,
   getRandomQuestions,
   searchQuestions,
+  getQuestionsByTopicId
 } from "../Controllers/QuestionControllers.js";
 
 import { protect, admin } from "../Middleware/AuthMiddleware.js";
@@ -22,8 +23,8 @@ router.get("/search", searchQuestions);
 router.get("/random", getRandomQuestions);
 router.get("/difficulty/:difficulty", getQuestionsByDifficulty);
 router.get("/subject/:subject", getQuestionsBySubject);
+router.get("/:topicId", getQuestionsByTopicId);
 router.get("/:id", getQuestionById);
-router.get("/:topicId", getQuestionById);
 
 // Admin routes
 router.post("/", protect, admin, createQuestion);

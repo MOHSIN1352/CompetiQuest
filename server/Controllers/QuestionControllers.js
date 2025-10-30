@@ -1,39 +1,65 @@
 import Question from '../Models/QuestionModel.js';
+import Topic from '../Models/TopicModel.js';
 
 // Create a new question
 export const createQuestion = async (req, res) => {
     try {
-        const { question_text, options, correct_option_index, difficulty, subjects } = req.body;
+        // Updated to match your new schema
+        const { questionText, options, correctOptionIndex, difficulty, topic, explanation } = req.body;
 
-        if (!question_text || !options || correct_option_index === undefined) {
+           console.log(questionText,
+            options,
+            correctOptionIndex,
+            difficulty,
+            topic, 
+            explanation)
+
+        // Updated validation
+        if (!questionText || !options || correctOptionIndex === undefined || !topic) {
             return res.status(400).json({
-                message: 'Question text, options, and correct option index are required'
+                message: 'Question text, options, correct option index, and topic ID are required'
             });
         }
 
-        if (options.length < 2) {
-            return res.status(400).json({ message: 'At least two options are required' });
+        // --- (Validation from your schema, good to double-check here) ---
+        if (!Array.isArray(options) || options.length < 2 || options.length > 6) {
+             return res.status(400).json({ message: 'Options must be an array with 2 to 6 items.' });
         }
 
-        if (correct_option_index < 0 || correct_option_index >= options.length) {
-            return res.status(400).json({ message: 'Correct option index must be within options range' });
+        if (correctOptionIndex < 0 || correctOptionIndex >= options.length) {
+             return res.status(400).json({ message: 'Correct option index must be a valid index in options array.' });
+        }
+        // -----------------------------------------------------------------
+
+        // (Optional but Recommended) Check if the topic exists
+        const topicExists = await Topic.findById(topic);
+        if (!topicExists) {
+             return res.status(404).json({ message: 'Topic not found with this ID' });
         }
 
-        const questionExists = await Question.findOne({ question_text });
+        // Check for duplicate question text
+        const questionExists = await Question.findOne({ questionText });
         if (questionExists) {
             return res.status(400).json({ message: 'Question with this text already exists' });
         }
+     
 
+        // Create question with new schema fields
         const question = await Question.create({
-            question_text,
+            questionText,
             options,
-            correct_option_index,
-            difficulty: difficulty || 'medium',
-            subjects: subjects || []
+            correctOptionIndex,
+            difficulty: difficulty || 'medium', // Uses default from schema
+            topic, // The required ObjectId
+            explanation: explanation || '' // Uses default from schema
         });
 
         res.status(201).json(question);
     } catch (error) {
+        // Handle CastError if 'topic' is not a valid ObjectId format
+        if (error.name === 'CastError') {
+             return res.status(400).json({ message: 'Invalid Topic ID format' });
+        }
         res.status(500).json({ message: 'Server Error', error: error.message });
     }
 };
@@ -79,6 +105,58 @@ export const getQuestionById = async (req, res) => {
         res.status(500).json({ message: 'Server Error', error: error.message });
     }
 };
+
+//get question by topic id
+
+export const getQuestionsByTopicId = async (req, res) => {
+    try {
+        const { topicId } = req.params;
+        const { page = 1, limit = 10 } = req.query;
+
+        // 1. Find the topic to get its subjects
+        const topic = await Topic.findById(topicId);
+        if (!topic) {
+            return res.status(404).json({ message: 'Topic not found' });
+        }
+
+        // 2. Get the subjects from the topic
+        const subjects = topic.subjects;
+        if (!subjects || subjects.length === 0) {
+            // If topic has no subjects, return no questions
+            return res.status(200).json({
+                questions: [],
+                totalPages: 0,
+                currentPage: 1,
+                total: 0
+            });
+        }
+
+        // 3. Find all questions that have at least one of those subjects
+        const query = { subjects: { $in: subjects } };
+        
+        const questions = await Question.find(query)
+            .limit(limit * 1)
+            .skip((page - 1) * limit)
+            .sort({ createdAt: -1 });
+
+        const total = await Question.countDocuments(query);
+
+        res.status(200).json({
+            questions,
+            totalPages: Math.ceil(total / limit),
+            currentPage: page,
+            total
+        });
+
+    } catch (error) {
+        // Handle potential CastError if the ID format is invalid
+        if (error.name === 'CastError') {
+            return res.status(400).json({ message: 'Invalid Topic ID format' });
+        }
+        res.status(500).json({ message: 'Server Error', error: error.message });
+    }
+};
+
 
 // Update question
 export const updateQuestion = async (req, res) => {

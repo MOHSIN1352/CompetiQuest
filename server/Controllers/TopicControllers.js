@@ -3,18 +3,31 @@ import Topic from '../Models/TopicModel.js';
 // Create a new topic
 export const createTopic = async (req, res) => {
     try {
-        const { name, description, subjects } = req.body;
+        // --- MODIFICATION ---
+        // We now require 'category' field on creation
+        const { name, description, subjects, category } = req.body;
 
         if (!name) return res.status(400).json({ message: 'Topic name is required' });
+        // --- (Optional but Recommended) Check if category is provided ---
+        if (!category) return res.status(400).json({ message: 'Category ID is required to create a topic' });
 
         const topicExists = await Topic.findOne({ name });
         if (topicExists) return res.status(400).json({ message: 'Topic with this name already exists' });
 
+        // (Optional) Check if the category actually exists
+        // const parentCategory = await Category.findById(category);
+        // if (!parentCategory) return res.status(404).json({ message: 'Parent category not found' });
+
         const topic = await Topic.create({
             name,
             description,
-            subjects: subjects || []
+            subjects: subjects || [],
+            category // Save the category reference
         });
+
+        // (Optional) Add this topic to the category's 'topics' array
+        // parentCategory.topics.push(topic._id);
+        // await parentCategory.save();
 
         res.status(201).json(topic);
     } catch (error) {
@@ -59,6 +72,34 @@ export const getTopicById = async (req, res) => {
         res.status(500).json({ message: 'Server Error', error: error.message });
     }
 };
+
+//Get topic by categoryid
+
+export const getTopicsByCategoryId = async (req, res) => {
+    try {
+        const { categoryId } = req.params;
+
+        if (!categoryId) {
+            return res.status(400).json({ message: 'Category ID is required' });
+        }
+        
+        // This query assumes your Topic model has a field named 'category'
+        // that stores the ObjectId of the parent category.
+        const topics = await Topic.find({ category: categoryId })
+                                  .sort({ created_at: -1 });
+
+        // Return an empty array if no topics are found (not an error)
+        res.status(200).json(topics);
+        
+    } catch (error) {
+        // Handle potential CastError if the ID format is invalid
+        if (error.name === 'CastError') {
+            return res.status(400).json({ message: 'Invalid Category ID format' });
+        }
+        res.status(500).json({ message: 'Server Error', error: error.message });
+    }
+};
+
 
 // Update a topic
 export const updateTopic = async (req, res) => {

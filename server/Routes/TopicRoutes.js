@@ -12,6 +12,7 @@ import {
   removeSubjectFromTopic,
   getAllSubjects,
   searchTopics,
+  getTopicsByCategoryId
 } from "../Controllers/TopicControllers.js";
 
 import { protect, admin } from "../Middleware/AuthMiddleware.js";
@@ -20,8 +21,9 @@ import { protect, admin } from "../Middleware/AuthMiddleware.js";
 router.get("/", getAllTopics);
 router.get("/search", searchTopics);
 router.get("/subjects", getAllSubjects);
+// router.get("/:categoryId", getTopicsByCategoryId);
 router.get("/:id", getTopicById);
-router.get("/:categoryId", getTopicById);
+
 
 // Admin routes
 router.post("/", protect, admin, createTopic);
