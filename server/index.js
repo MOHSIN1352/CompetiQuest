@@ -2,6 +2,7 @@ import express, { json } from "express";
 import { config } from "dotenv";
 import connectDB from "./Database/Connection.js";
 import cors from "cors";
+import cookieParser from 'cookie-parser';
 
 config();
 
@@ -18,6 +19,8 @@ app.use(
   })
 );
 app.use(json());
+app.use(cookieParser());
+
 
 // Routes
 import authRoutes from "./Routes/AuthRoutes.js";

@@ -2,6 +2,13 @@ import User from "../Models/UserModel.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
+const cookieOptions = {
+  httpOnly: true, // Prevents client-side JS from accessing the cookie
+  secure: process.env.NODE_ENV === "production", // Only send over HTTPS in production
+  sameSite: "Lax", // Or 'Strict'. Protects against CSRF
+  maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days, matching the token
+};
+
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
 };
@@ -21,14 +28,27 @@ export const registerUser = async (req, res) => {
         .status(409)
         .json({ message: "User with this email already exists" });
 
-    const user = await User.create({ username, email, password });
+    // --- (Optional) Set admin role if using the secret email from our previous chat ---
+    let role = "user";
+    if (email === "admin@competiquest.com") {
+      role = "admin";
+    }
+
+    const user = await User.create({ username, email, password, role });
 
     if (user) {
+      // Generate token
+      const token = generateToken(user._id);
+
+      // Set cookie
+      res.cookie("jwt", token, cookieOptions);
+
+      // Send response (without the token in the body)
       res.status(201).json({
         _id: user._id,
         username: user.username,
         email: user.email,
-        token: generateToken(user._id),
+        role: user.role, // Good to send the role to the frontend
       });
     } else {
       res.status(400).json({ message: "Invalid user data" });
@@ -45,11 +65,18 @@ export const loginUser = async (req, res) => {
     const user = await User.findOne({ username });
 
     if (user && (await bcrypt.compare(password, user.password))) {
+      // Generate token
+      const token = generateToken(user._id);
+
+      // Set cookie
+      res.cookie("jwt", token, cookieOptions);
+
+      // Send response (without the token in the body)
       res.status(200).json({
         _id: user._id,
         username: user.username,
         email: user.email,
-        token: generateToken(user._id),
+        role: user.role, // Good to send the role to the frontend
       });
     } else {
       res.status(401).json({ message: "Invalid username or password" });
@@ -58,7 +85,6 @@ export const loginUser = async (req, res) => {
     res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
-
 // Get user profile
 export const getUserProfile = async (req, res) => {
   try {
