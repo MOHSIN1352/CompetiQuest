@@ -6,7 +6,7 @@ import { ThemeProvider } from "./context/ThemeContext";
 // import ChatBotProvider from "../components/ChatBotProvider";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
-import { AuthProvider } from "@/context/AuthContext";
+import { AuthProvider } from "@/app/context/AuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

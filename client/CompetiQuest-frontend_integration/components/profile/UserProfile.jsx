@@ -9,7 +9,7 @@ import {
 } from "react-icons/fi";
 import { useTheme } from "../../app/context/ThemeContext";
 import Link from "next/link";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/app/context/AuthContext";
 
 let MotionDiv;
 let MotionSpan;
@@ -209,7 +209,7 @@ export default function UserProfile() {
           />
           <div className="ml-5 md:ml-8">
             <h2 className="text-lg md:text-xl font-semibold text-foreground">
-              {user.username}
+              {/* {user.username} */}
             </h2>
             <Link href="/profile/edit">
               <button className="mt-3 flex items-center gap-2 px-4 md:px-6 py-2 bg-accent/20 text-accent font-semibold rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors duration-300 text-sm md:text-base">

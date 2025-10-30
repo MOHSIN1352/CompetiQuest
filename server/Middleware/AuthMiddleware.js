@@ -1,6 +1,6 @@
 // Middleware/authMiddleware.js
-import jwt from 'jsonwebtoken';
-import User from '../Models/UserModel.js'; // note ES module path
+import jwt from "jsonwebtoken";
+import User from "../Models/UserModel.js"; // note ES module path
 
 export const protect = async (req, res, next) => {
   let token;
@@ -23,9 +23,7 @@ export const protect = async (req, res, next) => {
       next();
     } catch (error) {
       console.error(error);
-      return res
-        .status(401)
-        .json({ message: "Not authorized, token failed" });
+      return res.status(401).json({ message: "Not authorized, token failed" });
     }
   } else {
     return res.status(401).json({ message: "Not authorized, no token" });
@@ -33,9 +31,9 @@ export const protect = async (req, res, next) => {
 };
 
 export const admin = (req, res, next) => {
-    if (req.user && req.user.role === 'admin') {
-        next();
-    } else {
-        res.status(403).json({ message: 'Not authorized as admin' });
-    }
+  if (req.user && req.user.role === "admin") {
+    next();
+  } else {
+    res.status(403).json({ message: "Not authorized as admin" });
+  }
 };

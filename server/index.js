@@ -2,7 +2,7 @@ import express, { json } from "express";
 import { config } from "dotenv";
 import connectDB from "./Database/Connection.js";
 import cors from "cors";
-import cookieParser from 'cookie-parser';
+import cookieParser from "cookie-parser";
 
 config();
 
@@ -14,13 +14,12 @@ const app = express();
 // Middleware
 app.use(
   cors({
-    origin: "http://10.200.10.101:3000",
+    origin: "http://localhost:3000",
     credentials: true,
   })
 );
 app.use(json());
 app.use(cookieParser());
-
 
 // Routes
 import authRoutes from "./Routes/AuthRoutes.js";

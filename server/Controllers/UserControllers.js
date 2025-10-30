@@ -63,7 +63,7 @@ export const loginUser = async (req, res) => {
   try {
     const { username, password } = req.body;
     const user = await User.findOne({ username });
-    console.log(user);
+
     if (user && (await bcrypt.compare(password, user.password))) {
       // Generate token
       const token = generateToken(user._id);
@@ -85,6 +85,18 @@ export const loginUser = async (req, res) => {
     res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
+
+// Logout a user
+export const logoutUser = (req, res) => {
+  res.clearCookie("jwt", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "Lax",
+  });
+
+  res.status(200).json({ message: "Logged out successfully" });
+};
+
 // Get user profile
 export const getUserProfile = async (req, res) => {
   try {

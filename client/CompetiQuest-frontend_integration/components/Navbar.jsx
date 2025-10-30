@@ -22,7 +22,7 @@ import {
 import { useTheme } from "../app/context/ThemeContext";
 import Image from "next/image";
 import Link from "next/link";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/app/context/AuthContext";
 
 const NavLink = ({ children, href }) => (
   <Link

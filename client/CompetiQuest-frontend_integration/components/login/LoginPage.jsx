@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/app/context/AuthContext";
 
 const LoginPage = ({ visible, handleFlip }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -47,7 +47,7 @@ const LoginPage = ({ visible, handleFlip }) => {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
         { username, password },
-        { withCredentials: true } // optional if your API uses cookies
+        { withCredentials: true }
       );
 
       if (response.status === 200) {
