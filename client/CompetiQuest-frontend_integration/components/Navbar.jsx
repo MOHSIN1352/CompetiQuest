@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FiSun,
   FiMoon,
@@ -23,6 +23,7 @@ import { useTheme } from "../app/context/ThemeContext";
 import Image from "next/image";
 import Link from "next/link";
 import { useAuth } from "@/app/context/AuthContext";
+import axios from "axios";
 
 const NavLink = ({ children, href }) => (
   <Link
@@ -36,13 +37,22 @@ const NavLink = ({ children, href }) => (
 
 const CategoryDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const categories = [
-    "Aptitude",
-    "Logical Reasoning",
-    "English",
-    "General Knowledge",
-    "Programming",
-  ];
+  const [categories, setCategories] = useState([]);
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/categories`
+        );
+        if (response.data) {
+          setCategories(response.data);
+        }
+      } catch (error) {
+        console.log("Error in the categories fetching: ", error);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   return (
     <div
@@ -64,11 +74,11 @@ const CategoryDropdown = () => {
         <div className="absolute top-full pt-2 w-48 bg-background/95 backdrop-blur-xl border border-border rounded-lg shadow-lg py-2">
           {categories.map((cat) => (
             <Link
-              key={cat}
-              href={`/${cat.toLowerCase().replace(/ /g, "_")}`}
+              key={cat._id}
+              href={`/${cat.name.toLowerCase().replace(/ /g, "_")}`}
               className="block px-4 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground"
             >
-              {cat}
+              {cat.name}
             </Link>
           ))}
         </div>

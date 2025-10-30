@@ -20,7 +20,7 @@ export function AuthProvider({ children }) {
             withCredentials: true, // send cookies with request
           }
         );
-        console.log(res.data);
+        // console.log(res.data);
         if (res.data?.user) {
           setUser(res.data.user);
         }
