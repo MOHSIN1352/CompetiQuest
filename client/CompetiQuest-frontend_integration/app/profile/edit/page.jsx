@@ -52,7 +52,7 @@ export default function EditProfile() {
 
   return (
     <div
-      className={`min-h-screen p-4 sm:p-6 flex items-center justify-center bg-background`}
+      className={`relative min-h-screen p-4 sm:p-6 flex items-center justify-center bg-background`}
     >
       <div
         style={{ boxShadow: shadowStyle }}
