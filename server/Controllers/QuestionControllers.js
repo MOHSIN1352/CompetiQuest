@@ -14,15 +14,6 @@ export const createQuestion = async (req, res) => {
       explanation,
     } = req.body;
 
-    console.log(
-      questionText,
-      options,
-      correctOptionIndex,
-      difficulty,
-      topic,
-      explanation
-    );
-
     // Updated validation
     if (
       !questionText ||
@@ -198,7 +189,7 @@ export const getQuestionsByTopicId = async (req, res) => {
     if (!topic) {
       return res.status(404).json({ message: "Topic not found" });
     }
-    console.log("this is topic param : ", topic);
+
     // 2️⃣ Find questions that belong to this topic
     const query = { topic: topicId };
 
@@ -264,20 +255,20 @@ export const updateQuestion = async (req, res) => {
       }
     }
 
-    if (question_text && question_text !== question.question_text) {
-      const exists = await Question.findOne({ question_text });
+    if (questionText && questionText !== question.questionText) {
+      const exists = await Question.findOne({ questionText });
       if (exists)
         return res
           .status(400)
           .json({ message: "Question with this text already exists" });
     }
 
-    question.question_text = question_text || question.question_text;
+    question.questionText = question_text || question.questionText;
     question.options = options || question.options;
-    question.correct_option_index =
-      correct_option_index !== undefined
-        ? correct_option_index
-        : question.correct_option_index;
+    question.correctOptionIndex =
+      correctOptionIndex !== undefined
+        ? correctOptionIndex
+        : question.correctOptionIndex;
     question.difficulty = difficulty || question.difficulty;
     question.subjects = subjects || question.subjects;
 

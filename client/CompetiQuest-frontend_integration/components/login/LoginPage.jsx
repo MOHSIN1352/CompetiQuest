@@ -1,3 +1,4 @@
+// ...existing code...
 "use client";
 import { useState } from "react";
 import axios from "axios";
@@ -49,12 +50,33 @@ const LoginPage = ({ visible, handleFlip }) => {
         { username, password },
         { withCredentials: true }
       );
-
+      console.log("Resposne: ", response);
       if (response.status === 200) {
         toast.success(" Logged in successfully!");
-        console.log("User:", response.data);
-        setUser(response.data); // Set the user data
-        router.push("/");
+        // Normalize user object: backend might return user as response.data or response.data.user
+        const returned =
+          response.data && response.data.user
+            ? response.data.user
+            : response.data;
+        setUser(returned); // Set the user data in context
+
+        // Determine role and redirect
+        const role =
+          (returned &&
+            (returned.role || returned.roles || returned.roleName)) ||
+          "";
+        const normalizedRole =
+          typeof role === "string"
+            ? role.toLowerCase()
+            : Array.isArray(role) && role.length
+            ? String(role[0]).toLowerCase()
+            : "";
+
+        if (normalizedRole === "admin") {
+          router.push("/admin");
+        } else {
+          router.push("/");
+        }
       }
     } catch (error) {
       console.error("Login error:", error);
@@ -187,3 +209,4 @@ const LoginPage = ({ visible, handleFlip }) => {
 };
 
 export default LoginPage;
+// ...existing code...
