@@ -24,6 +24,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useAuth } from "@/app/context/AuthContext";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 const NavLink = ({ children, href }) => (
   <Link
@@ -38,6 +39,7 @@ const NavLink = ({ children, href }) => (
 const CategoryDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [categories, setCategories] = useState([]);
+  const router = useRouter();
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -54,6 +56,10 @@ const CategoryDropdown = () => {
     fetchCategories();
   }, []);
 
+  const handleCategoryClick = (cat) => {
+    sessionStorage.setItem("selectedCategory", JSON.stringify(cat));
+    router.push(`/${cat.name.toLowerCase().replace(/ /g, "_")}`);
+  };
   return (
     <div
       className="relative"
@@ -73,13 +79,13 @@ const CategoryDropdown = () => {
       {isOpen && (
         <div className="absolute top-full pt-2 w-48 bg-background/95 backdrop-blur-xl border border-border rounded-lg shadow-lg py-2">
           {categories.map((cat) => (
-            <Link
+            <button
               key={cat._id}
-              href={`/${cat.name.toLowerCase().replace(/ /g, "_")}`}
-              className="block px-4 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+              onClick={() => handleCategoryClick(cat)}
+              className="block px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
             >
               {cat.name}
-            </Link>
+            </button>
           ))}
         </div>
       )}

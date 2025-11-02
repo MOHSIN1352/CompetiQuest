@@ -11,6 +11,7 @@ const formatTitleForUrl = (title) => {
 };
 
 export default function CategoryCard({
+  data,
   title,
   chapters,
   items,
@@ -27,17 +28,12 @@ export default function CategoryCard({
   // Handles the navigation to the specific category item page
   const handleClick = () => {
     // Format the title to be URL-friendly (e.g., "Time and Work" -> "time_and_work")
+    sessionStorage.setItem("selectedSubCategory", JSON.stringify(data));
     const formattedTitle = formatTitleForUrl(title);
     // Push the new route to the router
     router.push(`${pathname}/${formattedTitle}/page1`);
   };
-  useEffect(() => {
-    const fetchData = async () => {
-      const response = await axios("http://localhost:5000/api/categories");
-      if (response) console.log("this is category data: ", response);
-    };
-    fetchData();
-  }, []);
+
   return (
     <div className="relative w-full max-w-sm h-80 flex flex-col overflow-hidden rounded-3xl shadow-xl shadow-accent/10 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
       {/* Background with gradient and subtle rings */}
@@ -46,7 +42,7 @@ export default function CategoryCard({
       >
         {/* Title text */}
         <h3 className="absolute top-4 left-4 text-white text-3xl font-bold leading-tight z-10">
-          {title}
+          {title.charAt(0).toUpperCase() + title.slice(1)}
         </h3>
         <div className="absolute top-30 w-fit  opacity-10 pointer-events-none">
           {/* Subtle rings for a dynamic effect */}
@@ -68,7 +64,7 @@ export default function CategoryCard({
 
       {/* Card stats section */}
       <div className="relative  flex items-center justify-between bg-primary p-6 rounded-b-3xl ">
-        <div className="flex justify-start items-center gap-4">
+        {/* <div className="flex justify-start items-center gap-4">
           <div className="flex flex-col items-center">
             <span className="text-2xl font-bold text-muted-foreground">
               {chapters}
@@ -86,7 +82,7 @@ export default function CategoryCard({
           <span className="text-md font-semibold text-muted-foreground/50">
             {progressPercentage}%
           </span>
-        </div>
+        </div> */}
       </div>
     </div>
   );

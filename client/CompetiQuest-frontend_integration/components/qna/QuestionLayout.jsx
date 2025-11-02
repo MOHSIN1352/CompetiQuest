@@ -20,9 +20,13 @@ const Question = ({
   showExplanation,
   toggleExplanation,
 }) => {
-  const isSelected = selectedAnswers[q.id];
-  const isCorrect = isSelected === q.answer;
-
+  console.log("this is question object:", q);
+  console.log("this is selected Ans:", selectedAnswers);
+  console.log("this is showExplanation object:", showExplanation);
+  console.log("this is toggleExplanation object:", toggleExplanation);
+  const questionId = q._id; // ✅ ensure a unique key
+  const isSelected = selectedAnswers[questionId];
+  const isCorrect = isSelected === q.correctOptionIndex;
   return (
     <motion.div
       key={q.id}
@@ -35,18 +39,18 @@ const Question = ({
         <span className="font-bold text-accent mr-2">
           {(page - 1) * 5 + index + 1}.
         </span>
-        {q.question}
+        {q.questionText}
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {q.options.map((option) => {
-          const isThisOptionSelected = selectedAnswers[q.id] === option;
-          const isThisCorrect = option === q.answer;
+        {q.options.map((option, i) => {
+          const isThisOptionSelected = selectedAnswers[questionId] === i;
+          const isThisCorrect = i === q.correctOptionIndex;
 
           return (
             <button
               key={option}
-              onClick={() => handleSelectAnswer(q.id, option)}
+              onClick={() => handleSelectAnswer(questionId, i)}
               className={`p-4 rounded-lg text-left transition-all duration-300 border-2 ${
                 isThisOptionSelected
                   ? isThisCorrect
@@ -61,20 +65,26 @@ const Question = ({
         })}
       </div>
 
-      {isSelected && (
+      {isSelected !== undefined && (
         <div className="mt-4">
-          <p className={`font-bold ${isCorrect ? "text-green-500" : "text-red-500"}`}>
-            {isCorrect ? "Correct!" : `Correct Answer: ${q.answer}`}
+          <p
+            className={`font-bold ${
+              isCorrect ? "text-green-500" : "text-red-500"
+            }`}
+          >
+            {isCorrect
+              ? "Correct!"
+              : `Correct Answer: ${q.correctOptionIndex + 1}`}
           </p>
 
           <button
-            onClick={() => toggleExplanation(q.id)}
+            onClick={() => toggleExplanation(questionId)}
             className="text-accent hover:underline mt-2"
           >
-            {showExplanation[q.id] ? "Hide" : "Show"} Explanation
+            {showExplanation[questionId] ? "Hide" : "Show"} Explanation
           </button>
 
-          {showExplanation[q.id] && (
+          {showExplanation[questionId] && (
             <p className="mt-2 p-4 bg-accent/10 rounded-lg text-muted-foreground">
               {q.explanation}
             </p>
@@ -119,8 +129,7 @@ const Pagination = ({
 
   const baseBtn =
     "w-10 h-10 grid place-items-center rounded-md border-2 bg-transparent transition-colors";
-  const idle =
-    "border-border hover:border-accent hover:text-accent";
+  const idle = "border-border hover:border-accent hover:text-accent";
   const active = "border-accent text-accent";
   const iconBtn =
     "w-10 h-10 grid place-items-center rounded-md border-2 border-border hover:border-accent hover:text-accent transition-colors";
@@ -205,14 +214,17 @@ export default function QuestionLayout({ questions, page }) {
   };
 
   const toggleExplanation = (questionId) => {
-    setShowExplanation((prev) => ({ ...prev, [questionId]: !prev[questionId] }));
+    setShowExplanation((prev) => ({
+      ...prev,
+      [questionId]: !prev[questionId],
+    }));
   };
 
   return (
     <div className="space-y-12">
       {questions.map((q, index) => (
         <Question
-          key={q.id}
+          key={q._id}
           q={q}
           index={index}
           page={page}
