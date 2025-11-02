@@ -118,6 +118,7 @@ const SidebarDropdown = ({ title, icon, children }) => {
 };
 
 const Sidebar = ({ isOpen, closeSidebar }) => {
+  const { user, logout } = useAuth();
   const categories = {
     Aptitude: {
       icon: <FiBarChart2 />,
@@ -165,7 +166,7 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
                 className="w-10 h-10 rounded-full"
               />
               <div>
-                <p className="font-semibold text-foreground">gauravRathod674</p>
+                <p className="font-semibold text-foreground">this is user</p>
               </div>
             </div>
             <button
@@ -260,14 +261,17 @@ export default function Navbar() {
   const { darkMode, toggleDarkMode } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, logout } = useAuth();
+
   const authButton = user ? (
     <div className="hidden sm:flex items-center space-x-4">
-      <Link
-        href="/profile"
-        className="relative p-2.5 rounded-full hover:bg-accent/10 hover:text-accent transition-colors duration-200"
-      >
-        <FiUser />
-      </Link>
+      {user?.role !== "admin" && (
+        <Link
+          href="/profile"
+          className="relative p-2.5 rounded-full hover:bg-accent/10 hover:text-accent transition-colors duration-200"
+        >
+          <FiUser />
+        </Link>
+      )}
       <button
         onClick={logout}
         className="px-6 py-2 bg-red-500/20 text-red-500 font-semibold rounded-lg hover:bg-red-500 hover:text-white transition-colors duration-300"
@@ -283,19 +287,20 @@ export default function Navbar() {
       Login
     </Link>
   );
-
   return (
     <>
       <header className="fixed top-0 inset-x-0 z-40 bg-muted/10 backdrop-blur-lg border-b border-border/50">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center gap-6">
-              <button
-                onClick={() => setSidebarOpen(true)}
-                className="p-2 -ml-2 text-foreground cursor-pointer"
-              >
-                <FiMenu size={24} />
-              </button>
+              {user?.role !== "admin" && (
+                <button
+                  onClick={() => setSidebarOpen(true)}
+                  className="p-2 -ml-2 text-foreground cursor-pointer"
+                >
+                  <FiMenu size={24} />
+                </button>
+              )}
               <Link href="/" className="flex items-center gap-2">
                 <Image
                   src={darkMode ? "/Dark_Logo.png" : "/Light_Logo.png"}
@@ -310,13 +315,15 @@ export default function Navbar() {
               </Link>
             </div>
 
-            <div className="hidden min-[900px]:flex items-center space-x-8">
-              <NavLink href="/">Home</NavLink>
-              <CategoryDropdown />
-              <NavLink href="/mental_maths">Mental Maths</NavLink>
-              <NavLink href="/#about-us">About</NavLink>
-              <NavLink href="/#contact-us">Contact</NavLink>
-            </div>
+            {user?.role !== "admin" && (
+              <div className="hidden min-[900px]:flex items-center space-x-8">
+                <NavLink href="/">Home</NavLink>
+                <CategoryDropdown />
+                <NavLink href="/mental_maths">Mental Maths</NavLink>
+                <NavLink href="/#about-us">About</NavLink>
+                <NavLink href="/#contact-us">Contact</NavLink>
+              </div>
+            )}
 
             <div className="flex items-center space-x-4">
               <button
@@ -336,17 +343,12 @@ export default function Navbar() {
                   size={18}
                 />
               </button>
-              {/* <Link
-                href="/login"
-                className="hidden sm:block px-6 py-2 bg-accent/20 text-accent font-semibold rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors duration-300"
-              >
-                Login
-              <Link> */}
               {authButton}
             </div>
           </div>
         </nav>
       </header>
+
       <Sidebar
         isOpen={sidebarOpen}
         closeSidebar={() => setSidebarOpen(false)}

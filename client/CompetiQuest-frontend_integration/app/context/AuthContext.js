@@ -1,7 +1,8 @@
+// ...existing code...
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import toast from "react-hot-toast";
 import axios from "axios";
 
@@ -10,6 +11,7 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -32,6 +34,27 @@ export function AuthProvider({ children }) {
 
     fetchUser();
   }, []);
+
+  // redirect to /admin when the authenticated user is an admin
+  useEffect(() => {
+    if (!user) return;
+
+    const role = (user && (user.role || user.roles || user.roleName)) || "";
+
+    const normalizedRole =
+      typeof role === "string"
+        ? role.toLowerCase()
+        : Array.isArray(role) && role.length
+        ? String(role[0]).toLowerCase()
+        : "";
+
+    if (
+      (normalizedRole === "admin" || normalizedRole === "administrator") &&
+      !pathname?.startsWith("/admin")
+    ) {
+      router.push("/admin");
+    }
+  }, [user, pathname, router]);
 
   const logout = async () => {
     try {
@@ -56,3 +79,4 @@ export function AuthProvider({ children }) {
 }
 
 export const useAuth = () => useContext(AuthContext);
+// ...existing code...

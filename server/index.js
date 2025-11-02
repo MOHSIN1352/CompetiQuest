@@ -29,6 +29,7 @@ import topicRoutes from "./Routes/TopicRoutes.js";
 import questionRoutes from "./Routes/QuestionRoutes.js";
 import quizRoutes from "./Routes/QuizRoutes.js";
 import categoryRoutes from "./Routes/CategoryRoutes.js";
+import adminRoutes from "./Routes/AdminRoutes.js";
 
 // API Endpoints
 app.use("/api/auth", authRoutes);
@@ -37,6 +38,7 @@ app.use("/api/companies", companyRoutes);
 app.use("/api/topics", topicRoutes);
 app.use("/api/questions", questionRoutes);
 app.use("/api/quiz", quizRoutes);
+app.use("/api/admin", adminRoutes);
 app.use("/api/categories", categoryRoutes); // New
 
 // Health Check
