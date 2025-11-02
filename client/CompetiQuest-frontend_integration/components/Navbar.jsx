@@ -272,7 +272,14 @@ export default function Navbar() {
 
   const authButton = user ? (
     <div className="hidden sm:flex items-center space-x-4">
-      {user?.role !== "admin" && (
+      {user?.role === "admin" ? (
+        <Link
+          href="/admin"
+          className="px-4 py-2 bg-purple-500/20 text-purple-500 font-semibold rounded-lg hover:bg-purple-500 hover:text-white transition-colors duration-300"
+        >
+          Admin Panel
+        </Link>
+      ) : (
         <Link
           href="/profile"
           className="relative p-2.5 rounded-full hover:bg-accent/10 hover:text-accent transition-colors duration-200"

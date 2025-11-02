@@ -26,10 +26,11 @@ const QuestionSchema = new Schema({
         required: true,
         validate: {
             validator: function (value) {
-                // use normal function to access 'this'
-                return Number.isInteger(value) && Array.isArray(this.options) && value >= 0 && value < this.options.length;
+                // During updates, this.options might not be available yet
+                // So we'll do a basic validation here and rely on controller validation
+                return Number.isInteger(value) && value >= 0;
             },
-            message: 'correctOptionIndex must be a valid index in options array.'
+            message: 'correctOptionIndex must be a non-negative integer.'
         }
     },
     topic: {

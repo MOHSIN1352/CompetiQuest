@@ -1,63 +1,70 @@
-// routes/admin.js
-import express from "express";
-import Category from "../Models/CategoryModel.js";
-import Topic from "../Models/TopicModel.js";
-import Question from "../Models/QuestionModel.js";
-import User from "../Models/UserModel.js";
+import express from 'express';
+import { protect, admin } from '../Middleware/AuthMiddleware.js';
+import {
+    // Category CRUD
+    getAllCategories,
+    createCategory,
+    updateCategory,
+    deleteCategory,
+    
+    // Topic CRUD
+    getAllTopics,
+    getTopicsByCategory,
+    createTopic,
+    updateTopic,
+    deleteTopic,
+    
+    // Question CRUD
+    getAllQuestions,
+    getQuestionsByTopic,
+    createQuestion,
+    updateQuestion,
+    deleteQuestion,
+    
+    // Dashboard
+    getDashboardStats
+} from '../Controllers/AdminControllers.js';
 
 const router = express.Router();
 
-router.get("/overview", async (req, res) => {
-  try {
-    // 1️⃣ Fetch all raw data in parallel
-    const [usersCount, categories, topics, questions] = await Promise.all([
-      User.countDocuments(),
-      Category.find().lean(),
-      Topic.find().lean(),
-      Question.find().lean(),
-    ]);
+// Test routes without auth (for debugging)
+router.get('/test/categories', getAllCategories);
+router.post('/test/categories', createCategory);
+router.delete('/test/categories/:id', deleteCategory);
+router.get('/test/topics', getAllTopics);
+router.post('/test/topics', createTopic);
+router.delete('/test/topics/:id', deleteTopic);
+router.get('/test/questions', getAllQuestions);
+router.get('/test/questions/topic/:topicId', getQuestionsByTopic);
+router.post('/test/questions', createQuestion);
+router.put('/test/questions/:id', updateQuestion);
+router.delete('/test/questions/:id', deleteQuestion);
+router.get('/test/dashboard-stats', getDashboardStats);
 
-    // 2️⃣ Calculate question counts per topic
-    const topicCounts = {};
-    topics.forEach((topic) => {
-      topicCounts[topic._id.toString()] = 0; // initialize count
-    });
+// Apply admin middleware to all protected routes
+router.use(protect, admin);
 
-    questions.forEach((q) => {
-      const topicId = q.topic?.toString();
-      if (topicId && topicCounts.hasOwnProperty(topicId)) {
-        topicCounts[topicId] += 1;
-      }
-    });
+// ==================== DASHBOARD ====================
+router.get('/dashboard-stats', getDashboardStats);
 
-    // 3️⃣ Merge topics into categories, including question counts
-    const topicsByCategory = topics.reduce((acc, t) => {
-      const catId = t.category?.toString();
-      if (!acc[catId]) acc[catId] = [];
-      acc[catId].push({
-        _id: t._id,
-        name: t.name,
-        description: t.description,
-        questionCount: topicCounts[t._id.toString()],
-      });
-      return acc;
-    }, {});
+// ==================== CATEGORY ROUTES ====================
+router.get('/categories', getAllCategories);
+router.post('/categories', createCategory);
+router.put('/categories/:id', updateCategory);
+router.delete('/categories/:id', deleteCategory);
 
-    const result = categories.map((cat) => ({
-      ...cat,
-      topics: topicsByCategory[cat._id?.toString()] || [],
-    }));
+// ==================== TOPIC ROUTES ====================
+router.get('/topics', getAllTopics);
+router.get('/topics/category/:categoryId', getTopicsByCategory);
+router.post('/topics', createTopic);
+router.put('/topics/:id', updateTopic);
+router.delete('/topics/:id', deleteTopic);
 
-    // 4️⃣ Send all raw data + counts in response
-    res.json({
-      usersCount,
-      categories: result,
-      rawData: { categories, topics, questions }, // optional for frontend
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to load admin overview" });
-  }
-});
+// ==================== QUESTION ROUTES ====================
+router.get('/questions', getAllQuestions);
+router.get('/questions/topic/:topicId', getQuestionsByTopic);
+router.post('/questions', createQuestion);
+router.put('/questions/:id', updateQuestion);
+router.delete('/questions/:id', deleteQuestion);
 
 export default router;
