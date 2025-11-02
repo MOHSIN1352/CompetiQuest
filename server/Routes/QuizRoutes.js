@@ -10,16 +10,18 @@ import {
     getAllQuizAttempts,
     getUserQuizStats,
     getLeaderboard,
-    deleteQuizAttempt
+    deleteQuizAttempt,
+    generateQuiz
 } from '../Controllers/QuizControllers.js';
 
 import { protect, admin } from '../Middleware/AuthMiddleware.js';
 
 // User routes
+router.post('/generate', generateQuiz);
+router.post('/submit', submitQuiz);
+router.get('/history/:userId', getUserQuizHistory);
 router.post('/start', protect, startQuiz);
-router.post('/submit', protect, submitQuiz);
-router.get('/history', protect, getUserQuizHistory);
-router.get('/stats', protect, getUserQuizStats);
+router.get('/stats/:userId', getUserQuizStats);
 router.get('/attempt/:id', protect, getQuizAttempt);
 router.delete('/attempt/:id', protect, deleteQuizAttempt);
 

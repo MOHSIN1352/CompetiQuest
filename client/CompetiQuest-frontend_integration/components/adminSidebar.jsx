@@ -1,41 +1,34 @@
-"use client";
-import React from "react";
+import { FaUsers, FaChartBar, FaCog } from "react-icons/fa";
 
-export default function AdminSidebar({
-  users = [],
-  totalUsers = 0,
-  loading = false,
-}) {
+export default function AdminSidebar({ users, totalUsers, loading }) {
   return (
-    <div className="sticky top-24 space-y-4">
-      <div className="bg-white/60 dark:bg-zinc-800 p-4 rounded shadow">
-        <h3 className="text-lg font-semibold">Users</h3>
-        <p className="text-sm text-muted-foreground">
-          Total users: <span className="font-medium">{totalUsers}</span>
-        </p>
-      </div>
-
-      <div className="bg-white/60 dark:bg-zinc-800 p-4 rounded shadow max-h-96 overflow-auto">
-        <h4 className="font-semibold">Active / Recent users</h4>
-        {loading ? (
-          <p className="text-sm text-gray-500">Loading...</p>
-        ) : users.length === 0 ? (
-          <p className="text-sm text-gray-500">No users found</p>
-        ) : (
-          <ul className="space-y-2 mt-3">
-            {users.map((u) => (
-              <li key={u._id} className="flex items-center justify-between">
-                <div>
-                  <div className="font-medium">
-                    {u.username || u.name || u.email}
-                  </div>
-                  <div className="text-xs text-gray-500">{u.email}</div>
-                </div>
-                <div className="text-xs text-gray-400">{u.role || "user"}</div>
-              </li>
-            ))}
-          </ul>
-        )}
+    <div className="bg-secondary/40 rounded-xl p-6 border border-border">
+      <h2 className="text-xl font-semibold mb-4">Admin Overview</h2>
+      
+      <div className="space-y-4">
+        <div className="flex items-center gap-3">
+          <FaUsers className="text-blue-500" />
+          <div>
+            <p className="text-sm text-muted-foreground">Total Users</p>
+            <p className="text-lg font-semibold">{loading ? "..." : totalUsers}</p>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <FaChartBar className="text-green-500" />
+          <div>
+            <p className="text-sm text-muted-foreground">Active Users</p>
+            <p className="text-lg font-semibold">{loading ? "..." : users.filter(u => u.isActive).length}</p>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <FaCog className="text-purple-500" />
+          <div>
+            <p className="text-sm text-muted-foreground">System Status</p>
+            <p className="text-lg font-semibold text-green-500">Online</p>
+          </div>
+        </div>
       </div>
     </div>
   );
