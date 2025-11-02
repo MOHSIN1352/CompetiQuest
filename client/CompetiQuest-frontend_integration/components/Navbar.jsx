@@ -18,6 +18,7 @@ import {
   FiInfo,
   FiMail,
   FiZap,
+  FiHelpCircle,
 } from "react-icons/fi";
 import { useTheme } from "../app/context/ThemeContext";
 import Image from "next/image";
@@ -203,6 +204,13 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
               <FiUser /> User Profile
             </Link>
             <Link
+              href="/quiz"
+              className="flex items-center gap-3 py-2.5 px-4 hover:bg-accent/10 hover:text-accent rounded-md transition-colors duration-200"
+              onClick={closeSidebar}
+            >
+              <FiHelpCircle /> AI Quiz
+            </Link>
+            <Link
               href="/mental_maths"
               className="flex items-center gap-3 py-2.5 px-4 hover:bg-accent/10 hover:text-accent rounded-md transition-colors duration-200"
               onClick={closeSidebar}
@@ -313,6 +321,7 @@ export default function Navbar() {
             <div className="hidden min-[900px]:flex items-center space-x-8">
               <NavLink href="/">Home</NavLink>
               <CategoryDropdown />
+              <NavLink href="/quiz">AI Quiz</NavLink>
               <NavLink href="/mental_maths">Mental Maths</NavLink>
               <NavLink href="/#about-us">About</NavLink>
               <NavLink href="/#contact-us">Contact</NavLink>

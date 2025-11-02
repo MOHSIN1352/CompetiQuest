@@ -1,12 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FiEdit2,
   FiChevronDown,
   FiChevronUp,
   FiCalendar,
+  FiHelpCircle,
+  FiClock,
 } from "react-icons/fi";
+import axios from "axios";
 import { useTheme } from "../../app/context/ThemeContext";
 import Link from "next/link";
 import { useAuth } from "@/app/context/AuthContext";
@@ -35,21 +38,174 @@ export default function UserProfile() {
   const [openCategory, setOpenCategory] = useState(null);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [showYearDropdown, setShowYearDropdown] = useState(false);
+  const [quizStats, setQuizStats] = useState({
+    totalQuizzes: 0,
+    totalQuestions: 0,
+    correctAnswers: 0,
+    easyQuizzes: 0,
+    mediumQuizzes: 0,
+    hardQuizzes: 0,
+    calendarData: []
+  });
+  const [loading, setLoading] = useState(true);
   const { darkMode } = useTheme();
   const { user } = useAuth();
+
+  // Debug user data
+  useEffect(() => {
+    console.log('User data in profile:', user);
+  }, [user]);
+
+  useEffect(() => {
+    if (user?._id) {
+      fetchQuizData();
+    }
+  }, [user]);
+
+  const fetchQuizData = async () => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/quiz/history/${user._id}`);
+      
+      if (response.data.success) {
+        const quizzes = response.data.quizAttempts;
+        calculateQuizStats(quizzes);
+      }
+    } catch (error) {
+      console.error("Error fetching quiz data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const calculateQuizStats = (quizzes) => {
+    // Count difficulty levels from topic names (since we don't store level separately)
+    let easyCount = 0, mediumCount = 0, hardCount = 0;
+    
+    quizzes.forEach(quiz => {
+      // Simple logic: if topic contains certain keywords, classify difficulty
+      const topic = quiz.topic?.toLowerCase() || '';
+      if (topic.includes('easy') || topic.includes('basic') || topic.includes('beginner')) {
+        easyCount++;
+      } else if (topic.includes('hard') || topic.includes('advanced') || topic.includes('expert')) {
+        hardCount++;
+      } else {
+        mediumCount++; // Default to medium
+      }
+    });
+
+    // Calculate streaks
+    const { currentStreak, maxStreak } = calculateStreaks(quizzes);
+    
+    const stats = {
+      totalQuizzes: quizzes.length,
+      totalQuestions: quizzes.reduce((sum, quiz) => sum + quiz.totalQuestions, 0),
+      correctAnswers: quizzes.reduce((sum, quiz) => sum + quiz.score, 0),
+      easyQuizzes: easyCount,
+      mediumQuizzes: mediumCount,
+      hardQuizzes: hardCount,
+      currentStreak,
+      maxStreak,
+      calendarData: generateQuizCalendarData(quizzes)
+    };
+    
+    setQuizStats(stats);
+  };
+
+  const calculateStreaks = (quizzes) => {
+    if (quizzes.length === 0) return { currentStreak: 0, maxStreak: 0 };
+    
+    // Sort quizzes by date
+    const sortedQuizzes = quizzes.sort((a, b) => 
+      new Date(a.completed_at || a.attempted_at) - new Date(b.completed_at || b.attempted_at)
+    );
+    
+    // Group quizzes by date
+    const quizzesByDate = {};
+    sortedQuizzes.forEach(quiz => {
+      const date = new Date(quiz.completed_at || quiz.attempted_at).toDateString();
+      if (!quizzesByDate[date]) quizzesByDate[date] = [];
+      quizzesByDate[date].push(quiz);
+    });
+    
+    const dates = Object.keys(quizzesByDate).sort((a, b) => new Date(a) - new Date(b));
+    
+    let currentStreak = 0;
+    let maxStreak = 0;
+    let tempStreak = 0;
+    
+    // Calculate streaks (consecutive days with quizzes)
+    for (let i = 0; i < dates.length; i++) {
+      if (i === 0) {
+        tempStreak = 1;
+      } else {
+        const prevDate = new Date(dates[i - 1]);
+        const currDate = new Date(dates[i]);
+        const dayDiff = (currDate - prevDate) / (1000 * 60 * 60 * 24);
+        
+        if (dayDiff === 1) {
+          tempStreak++;
+        } else {
+          tempStreak = 1;
+        }
+      }
+      
+      maxStreak = Math.max(maxStreak, tempStreak);
+      
+      // Check if this is current streak (recent activity)
+      const today = new Date().toDateString();
+      const yesterday = new Date(Date.now() - 86400000).toDateString();
+      if (dates[i] === today || dates[i] === yesterday) {
+        currentStreak = tempStreak;
+      }
+    }
+    
+    return { currentStreak, maxStreak };
+  };
+
+  const generateQuizCalendarData = (quizzes) => {
+    const months = [];
+    const today = new Date();
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
+
+    // Create quiz count map by date
+    const quizCountByDate = {};
+    quizzes.forEach(quiz => {
+      const date = new Date(quiz.completed_at || quiz.attempted_at);
+      const dateStr = date.toISOString().split('T')[0];
+      quizCountByDate[dateStr] = (quizCountByDate[dateStr] || 0) + 1;
+    });
+
+    for (let m = new Date(sixMonthsAgo); m <= today; m.setMonth(m.getMonth() + 1)) {
+      const monthName = m.toLocaleString("default", { month: "short" });
+      const year = m.getFullYear();
+      const daysInMonth = new Date(year, m.getMonth() + 1, 0).getDate();
+
+      const days = [];
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = `${year}-${String(m.getMonth() + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+        const count = quizCountByDate[dateStr] || 0;
+        days.push({ date: dateStr, day: d, count });
+      }
+
+      months.push({ name: monthName, year, days });
+    }
+
+    return months;
+  };
 
   const primaryColor = "oklch(0.536 0.17 21.3)";
 
   const profile = {
-    username: "Kavyaa11",
-    solved: 413,
-    total: 3656,
-    attempting: 7,
-    streak: 16,
-    maxStreak: 42,
-    easy: { solved: 168, total: 890 },
-    medium: { solved: 212, total: 1904 },
-    hard: { solved: 33, total: 862 },
+    username: user?.username || "Guest User",
+    solved: quizStats.correctAnswers,
+    total: quizStats.totalQuestions,
+    attempting: 0,
+    streak: quizStats.currentStreak || 0,
+    maxStreak: quizStats.maxStreak || 0,
+    easy: { solved: quizStats.easyQuizzes, total: quizStats.easyQuizzes },
+    medium: { solved: quizStats.mediumQuizzes, total: quizStats.mediumQuizzes },
+    hard: { solved: quizStats.hardQuizzes, total: quizStats.hardQuizzes },
     topics: [
       {
         name: "Aptitude",
@@ -127,55 +283,19 @@ export default function UserProfile() {
         ],
       },
     ],
-    calendarData: generateCalendarData(),
+    calendarData: quizStats.calendarData,
   };
 
-  // Function to generate calendar data for last 6 months only
-  function generateCalendarData() {
-    const months = [];
-    const today = new Date();
-    const sixMonthsAgo = new Date();
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5); // Show 6 months total
 
-    for (
-      let m = new Date(sixMonthsAgo);
-      m <= today;
-      m.setMonth(m.getMonth() + 1)
-    ) {
-      const monthName = m.toLocaleString("default", { month: "short" });
-      const year = m.getFullYear();
-      const daysInMonth = new Date(year, m.getMonth() + 1, 0).getDate();
 
-      const days = [];
-      for (let d = 1; d <= daysInMonth; d++) {
-        const dateStr = `${year}-${String(m.getMonth() + 1).padStart(
-          2,
-          "0"
-        )}-${String(d).padStart(2, "0")}`;
-        // Random number of problems solved (0-5)
-        const count = Math.floor(Math.random() * 6);
-        days.push({ date: dateStr, day: d, count });
-      }
-
-      months.push({ name: monthName, year, days });
-    }
-
-    return months;
-  }
-
-  // Function to get color intensity based on count using primary color
+  // Function to get color intensity based on quiz count using red colors
   function getColorIntensity(count) {
     if (count === 0) return darkMode ? "bg-gray-700" : "bg-gray-100";
-    if (count === 1) return "bg-accent/90";
-    if (count === 2) return "bg-accent/80";
-    if (count === 3) return "bg-accent/70";
-    if (count === 4) return "bg-accent/60";
-    if (count === 5) return "bg-accent/50";
-    if (count === 6) return "bg-accent/40";
-    if (count === 7) return "bg-accent/30";
-    if (count === 8) return "bg-accent/20";
-    if (count === 9) return "bg-accent/10";
-    if (count >= 10) return "bg-accent";
+    if (count === 1) return "bg-red-200"; // Light red for 1 quiz
+    if (count === 2) return "bg-red-300";
+    if (count === 3) return "bg-red-400"; // Medium red for 3 quizzes
+    if (count >= 4) return "bg-red-600"; // Dark red for 4+ quizzes
+    return darkMode ? "bg-gray-700" : "bg-gray-100";
   }
 
   // Toggle category dropdown
@@ -209,8 +329,11 @@ export default function UserProfile() {
           />
           <div className="ml-5 md:ml-8">
             <h2 className="text-lg md:text-xl font-semibold text-foreground">
-              {/* {user.username} */}
+              {user?.username || "Guest User"}
             </h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              {user?.email || "Please login to see your email"}
+            </p>
             <Link href="/profile/edit">
               <button className="mt-3 flex items-center gap-2 px-4 md:px-6 py-2 bg-accent/20 text-accent font-semibold rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors duration-300 text-sm md:text-base">
                 <FiEdit2 size={14} />
@@ -276,7 +399,7 @@ export default function UserProfile() {
                   </span>
                 </div>
                 <span className="text-xs md:text-sm font-normal text-muted-foreground">
-                  {profile.easy.solved}/{profile.easy.total}
+                  {profile.easy.solved}
                 </span>
               </div>
 
@@ -287,7 +410,7 @@ export default function UserProfile() {
                   </span>
                 </div>
                 <span className="text-xs md:text-sm font-normal text-muted-foreground">
-                  {profile.medium.solved}/{profile.medium.total}
+                  {profile.medium.solved}
                 </span>
               </div>
 
@@ -298,7 +421,7 @@ export default function UserProfile() {
                   </span>
                 </div>
                 <span className="text-xs md:text-sm font-normal text-muted-foreground">
-                  {profile.hard.solved}/{profile.hard.total}
+                  {profile.hard.solved}
                 </span>
               </div>
             </div>
@@ -316,7 +439,7 @@ export default function UserProfile() {
           <div className="flex items-center">
             <FiCalendar className="mr-2 text-accent" />
             <h3 className="text-lg font-semibold text-foreground">
-              Problem Solving Calendar
+              Quiz Activity Calendar
             </h3>
           </div>
 
@@ -388,7 +511,7 @@ export default function UserProfile() {
                       className={`w-5 h-5 rounded-sm flex items-center justify-center text-[10px] ${getColorIntensity(
                         day.count
                       )} ${darkMode ? "text-white" : "text-foreground"}`}
-                      title={`${day.date}: ${day.count} problems solved`}
+                      title={`${day.date}: ${day.count} quizzes taken`}
                     >
                       {day.day}
                     </div>
@@ -399,6 +522,39 @@ export default function UserProfile() {
           </div>
         </div>
       </div>
+
+      {/* Quiz History Section */}
+      <div
+        className={`w-full ${
+          darkMode ? "bg-secondary/35" : "bg-white"
+        } rounded-2xl shadow-md p-6 border border-border/50 mb-6`}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center">
+            <FiHelpCircle className="mr-2 text-accent" />
+            <h3 className="text-lg font-semibold text-foreground">
+              Quiz History
+            </h3>
+          </div>
+          <Link href="/quiz">
+            <button className="px-4 py-2 bg-accent/20 text-accent font-semibold rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors duration-300 text-sm">
+              Take New Quiz
+            </button>
+          </Link>
+        </div>
+
+        <div className="text-center py-8">
+          <FiHelpCircle className="text-4xl text-accent mx-auto mb-3" />
+          <h4 className="text-lg font-semibold mb-2 text-foreground">Quiz Results</h4>
+          <p className="text-muted-foreground mb-4">View your past quiz attempts and scores</p>
+          <Link href="/quiz/history">
+            <button className="px-6 py-3 bg-accent text-accent-foreground rounded-lg hover:bg-accent/80 transition-colors duration-300 font-medium">
+              View Past Quiz Results
+            </button>
+          </Link>
+        </div>
+      </div>
+
       {/* Topic Coverage Section */}
       <div className="w-full">
         <h3 className="text-xl font-semibold mb-4 text-foreground">

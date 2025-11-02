@@ -6,6 +6,12 @@ import cookieParser from "cookie-parser";
 
 config();
 
+// Debug: Check if API key is loaded
+console.log('GEMINI_API_KEY loaded:', process.env.GEMINI_API_KEY ? 'YES' : 'NO');
+if (process.env.GEMINI_API_KEY) {
+    console.log('API Key starts with:', process.env.GEMINI_API_KEY.substring(0, 10) + '...');
+}
+
 // Connect to MongoDB
 connectDB();
 

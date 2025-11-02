@@ -4,18 +4,22 @@ import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 const AttemptQuestionSchema = new Schema({
-    questionId: {
+    question_id: {
         type: Schema.Types.ObjectId,
-        ref: 'Question',
-        required: true
+        ref: 'Question'
     },
-    selectedOptionIndex: {
+    question_data: {
+        description: String,
+        options: [String],
+        correct_option_index: Number
+    },
+    selected_option_index: {
         type: Number,
-        required: true
+        default: null
     },
-    isCorrect: {
+    is_correct: {
         type: Boolean,
-        required: true
+        default: null
     }
 }, { _id: false });
 
@@ -26,8 +30,7 @@ const QuizAttemptSchema = new Schema({
         required: true
     },
     topic: {
-        type: Schema.Types.ObjectId,
-        ref: 'Topic',
+        type: Schema.Types.Mixed,
         required: true
     },
     questions: {
@@ -42,12 +45,19 @@ const QuizAttemptSchema = new Schema({
         type: Number,
         required: true
     },
-    attemptedAt: {
+    status: {
+        type: String,
+        enum: ['in_progress', 'completed'],
+        default: 'in_progress'
+    },
+    attempted_at: {
         type: Date,
         default: Date.now
     },
-    // optional: duration/timeTaken in seconds (useful later)
-    durationSeconds: {
+    completed_at: {
+        type: Date
+    },
+    duration_seconds: {
         type: Number
     }
 }, {
