@@ -255,8 +255,8 @@ export const updateQuestion = async (req, res) => {
       }
     }
 
-    if (questionText && questionText !== question.questionText) {
-      const exists = await Question.findOne({ questionText });
+    if (question_text && question_text !== question.questionText) {
+      const exists = await Question.findOne({ questionText: question_text });
       if (exists)
         return res
           .status(400)
@@ -266,8 +266,8 @@ export const updateQuestion = async (req, res) => {
     question.questionText = question_text || question.questionText;
     question.options = options || question.options;
     question.correctOptionIndex =
-      correctOptionIndex !== undefined
-        ? correctOptionIndex
+      correct_option_index !== undefined
+        ? correct_option_index
         : question.correctOptionIndex;
     question.difficulty = difficulty || question.difficulty;
     question.subjects = subjects || question.subjects;

