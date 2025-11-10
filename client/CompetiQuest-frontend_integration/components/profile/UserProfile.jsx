@@ -312,20 +312,20 @@ export default function UserProfile() {
   const yearOptions = [currentYear, currentYear - 1, currentYear - 2];
 
   return (
-    <div className="min-h-screen flex flex-col p-6  mt-20 md:p-10 lg:px-20 bg-background">
+    <div className="min-h-screen flex flex-col px-4 sm:px-6 md:px-10 lg:px-20 mt-16 md:mt-20 bg-background">
       {/* Top cards row */}
-      <div className="flex flex-col lg:flex-row gap-6 w-full mb-6">
+     <div className="flex flex-col md:flex-row lg:flex-row gap-6 w-full mb-6">
         {/* Left Profile Card */}
 
         <div
           className={`${
             darkMode ? "bg-secondary/50" : "bg-white"
-          } rounded-2xl shadow-md p-4 md:p-6 flex items-center border border-border/50 w-full lg:w-1/2 `}
+          } rounded-2xl shadow-md p-4 md:p-6 flex items-center border border-border/50 w-full md:w-1/2 lg:w-1/2 `}
         >
           <img
             src="/profile_photo.png"
             alt="Profile Picture"
-            className="md:w-28 md:h-28 rounded-full flex items-center justify-center bg-accent/20 ml-10"
+           className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-accent/20 mb-3 sm:mb-0 sm:ml-6"
           />
           <div className="ml-5 md:ml-8">
             <h2 className="text-lg md:text-xl font-semibold text-foreground">
@@ -335,8 +335,18 @@ export default function UserProfile() {
               {user?.email || "Please login to see your email"}
             </p>
             <Link href="/profile/edit">
-              <button className="mt-3 flex items-center gap-2 px-4 md:px-6 py-2 bg-accent/20 text-accent font-semibold rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors duration-300 text-sm md:text-base">
-                <FiEdit2 size={14} />
+              <button className="mt-3 
+    flex items-center justify-center md:justify-start
+    gap-2
+    px-3 sm:px-4 md:px-5 lg:px-6
+    py-2 sm:py-2.5 md:py-3
+    bg-accent/20
+    text-accent font-semibold
+    rounded-lg
+    hover:bg-accent hover:text-accent-foreground
+    transition-colors duration-300
+    text-sm sm:text-base md:text-lg">
+               <FiEdit2 className="w-4 h-4 sm:w-5 sm:h-5 md:w-5 md:h-5 lg:w-6 lg:h-6" />
                 Edit Profile
               </button>
             </Link>
@@ -347,7 +357,8 @@ export default function UserProfile() {
         <div
           className={`${
             darkMode ? "bg-secondary/35" : "bg-white"
-          }  "text-accent font-semibold   rounded-xl shadow-sm pr-20 pl-20 pt-8 pb-4 flex items-center border border-border/40 w-full lg:w-1/2`}
+          }  "text-accent font-semibold   rounded-xl shadow-sm px-4 sm:px-6 md:px-10 lg:px-20
+ pt-8 pb-4 flex items-center border border-border/40 w-full lg:w-1/2`}
         >
           {/* Circular Progress - Left side */}
           <div className="relative w-24 h-24 md:w-40 md:h-40 flex-shrink-0 ml-2">
@@ -390,7 +401,7 @@ export default function UserProfile() {
           </div>
 
           {/* Difficulty Stats - Right side */}
-          <div className="flex-1 ml-30 ">
+          <div className="flex-1 ml-4 md:ml-8 lg:ml-10 ">
             <div className="flex flex-col gap-2 md:gap-3 ">
               <div className="text-center bg-accent/12 font-semibold rounded-lg w-30">
                 <div className="">
@@ -504,7 +515,7 @@ export default function UserProfile() {
                 </div>
 
                 {/* Show date numbers instead of question counts */}
-                <div className="grid grid-cols-6 gap-1">
+                <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-1">
                   {month.days.map((day, dayIndex) => (
                     <div
                       key={dayIndex}
@@ -556,7 +567,7 @@ export default function UserProfile() {
       </div>
 
       {/* Topic Coverage Section */}
-      <div className="w-full">
+      {/* <div className="w-full">
         <h3 className="text-xl font-semibold mb-4 text-foreground">
           Topic Coverage
         </h3>
@@ -688,7 +699,7 @@ export default function UserProfile() {
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
