@@ -92,9 +92,9 @@ export default function QuestionPage() {
   }, []);
 
   const handlePageChange = (newPage) => {
-    // router.push(`/${category}/${slugSub}/page${newPage}`);
+    router.push(`/${category}/${slugSub}/page${newPage}`);
   };
-  console.log("questions: ", questions);
+
   return (
     <div className="min-h-screen bg-background text-foreground pt-20">
       {/* Topic Header */}

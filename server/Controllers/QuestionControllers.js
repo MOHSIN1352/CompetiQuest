@@ -2,79 +2,199 @@ import Question from "../Models/QuestionModel.js";
 import Topic from "../Models/TopicModel.js";
 
 // Create a new question
+// export const createQuestion = async (req, res) => {
+//   try {
+//     // Updated to match your new schema
+//     const {
+//       questionText,
+//       options,
+//       correctOptionIndex,
+//       difficulty,
+//       topic,
+//       explanation,
+//     } = req.body;
+
+//     // Updated validation
+//     if (
+//       !questionText ||
+//       !options ||
+//       correctOptionIndex === undefined ||
+//       !topic
+//     ) {
+//       return res.status(400).json({
+//         message:
+//           "Question text, options, correct option index, and topic ID are required",
+//       });
+//     }
+
+//     // --- (Validation from your schema, good to double-check here) ---
+//     if (!Array.isArray(options) || options.length < 2 || options.length > 6) {
+//       return res
+//         .status(400)
+//         .json({ message: "Options must be an array with 2 to 6 items." });
+//     }
+
+//     if (correctOptionIndex < 0 || correctOptionIndex >= options.length) {
+//       return res.status(400).json({
+//         message: "Correct option index must be a valid index in options array.",
+//       });
+//     }
+//     // -----------------------------------------------------------------
+
+//     // (Optional but Recommended) Check if the topic exists
+//     const topicExists = await Topic.findById(topic);
+//     if (!topicExists) {
+//       return res.status(404).json({ message: "Topic not found with this ID" });
+//     }
+
+//     // Check for duplicate question text
+//     const questionExists = await Question.findOne({ questionText });
+//     if (questionExists) {
+//       return res
+//         .status(400)
+//         .json({ message: "Question with this text already exists" });
+//     }
+
+//     // Create question with new schema fields
+//     const question = await Question.create({
+//       questionText,
+//       options,
+//       correctOptionIndex,
+//       difficulty: difficulty || "medium", // Uses default from schema
+//       topic, // The required ObjectId
+//       explanation: explanation || "", // Uses default from schema
+//     });
+
+//     res.status(201).json(question);
+//   } catch (error) {
+//     // Handle CastError if 'topic' is not a valid ObjectId format
+//     if (error.name === "CastError") {
+//       return res.status(400).json({ message: "Invalid Topic ID format" });
+//     }
+//     res.status(500).json({ message: "Server Error", error: error.message });
+//   }
+// };
+// controllers/questionController.js
+
+/**
+ * Creates multiple questions from an array.
+ * Expects req.body to be an array of question objects.
+ * If any question fails validation, the entire batch is rejected.
+ */
 export const createQuestion = async (req, res) => {
   try {
-    // Updated to match your new schema
-    const {
-      questionText,
-      options,
-      correctOptionIndex,
-      difficulty,
-      topic,
-      explanation,
-    } = req.body;
+    // 1. Expect an array of questions in the request body
+    const questions = req.body;
 
-    // Updated validation
-    if (
-      !questionText ||
-      !options ||
-      correctOptionIndex === undefined ||
-      !topic
-    ) {
+    // 2. Basic validation: check if it's an array and not empty
+    if (!Array.isArray(questions) || questions.length === 0) {
       return res.status(400).json({
-        message:
-          "Question text, options, correct option index, and topic ID are required",
+        message: "Request body must be a non-empty array of questions.",
       });
     }
 
-    // --- (Validation from your schema, good to double-check here) ---
-    if (!Array.isArray(options) || options.length < 2 || options.length > 6) {
-      return res
-        .status(400)
-        .json({ message: "Options must be an array with 2 to 6 items." });
-    }
+    const questionsToCreate = [];
+    const seenTexts = new Set(); // For checking duplicates within the batch itself
 
-    if (correctOptionIndex < 0 || correctOptionIndex >= options.length) {
-      return res.status(400).json({
-        message: "Correct option index must be a valid index in options array.",
+    // 3. Loop through each question and validate it one by one
+    // This is simple to read and understand.
+    for (const questionData of questions) {
+      const {
+        questionText,
+        options,
+        correctOptionIndex,
+        difficulty,
+        topic,
+        explanation,
+      } = questionData;
+
+      // 4. Perform all validations from your original code for EACH question
+      if (
+        !questionText ||
+        !options ||
+        correctOptionIndex === undefined ||
+        !topic
+      ) {
+        // Fail the entire batch if one is bad
+        return res.status(400).json({
+          message:
+            "Each question must have questionText, options, correctOptionIndex, and topic ID.",
+          failedQuestionText: questionText || "N/A",
+        });
+      }
+
+      if (!Array.isArray(options) || options.length < 2 || options.length > 6) {
+        return res.status(400).json({
+          message: "Options must be an array with 2 to 6 items.",
+          failedQuestionText: questionText,
+        });
+      }
+
+      if (correctOptionIndex < 0 || correctOptionIndex >= options.length) {
+        return res.status(400).json({
+          message:
+            "Correct option index must be a valid index in options array.",
+          failedQuestionText: questionText,
+        });
+      }
+
+      // 5. Perform DB and batch-level checks
+
+      // Check for duplicates *within* this new batch
+      if (seenTexts.has(questionText)) {
+        return res.status(400).json({
+          message: "Duplicate questionText found within the batch.",
+          failedQuestionText: questionText,
+        });
+      }
+      seenTexts.add(questionText);
+
+      // (Optional but Recommended) Check if the topic exists
+      // We do this one-by-one for simplicity
+      const topicExists = await Topic.findById(topic);
+      if (!topicExists) {
+        return res.status(404).json({
+          message: "Topic not found with this ID",
+          topicId: topic,
+          failedQuestionText: questionText,
+        });
+      }
+
+      // Check for duplicate question text already in the DB
+      const questionExists = await Question.findOne({ questionText });
+      if (questionExists) {
+        return res.status(400).json({
+          message: "Question with this text already exists in the database.",
+          failedQuestionText: questionText,
+        });
+      }
+
+      // 6. If all checks pass, prepare the data for insertion
+      questionsToCreate.push({
+        questionText,
+        options,
+        correctOptionIndex,
+        difficulty: difficulty || "medium",
+        topic,
+        explanation: explanation || "",
       });
     }
-    // -----------------------------------------------------------------
 
-    // (Optional but Recommended) Check if the topic exists
-    const topicExists = await Topic.findById(topic);
-    if (!topicExists) {
-      return res.status(404).json({ message: "Topic not found with this ID" });
-    }
+    // 7. If the loop finishes without errors, insert all valid questions at once
+    const newQuestions = await Question.insertMany(questionsToCreate);
 
-    // Check for duplicate question text
-    const questionExists = await Question.findOne({ questionText });
-    if (questionExists) {
-      return res
-        .status(400)
-        .json({ message: "Question with this text already exists" });
-    }
-
-    // Create question with new schema fields
-    const question = await Question.create({
-      questionText,
-      options,
-      correctOptionIndex,
-      difficulty: difficulty || "medium", // Uses default from schema
-      topic, // The required ObjectId
-      explanation: explanation || "", // Uses default from schema
-    });
-
-    res.status(201).json(question);
+    res.status(201).json(newQuestions);
   } catch (error) {
     // Handle CastError if 'topic' is not a valid ObjectId format
     if (error.name === "CastError") {
-      return res.status(400).json({ message: "Invalid Topic ID format" });
+      return res.status(400).json({
+        message: "Invalid Topic ID format. All topic IDs must be valid.",
+        error: error.message,
+      });
     }
     res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
-
 // Get all questions with filters
 export const getAllQuestions = async (req, res) => {
   try {

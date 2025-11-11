@@ -7,9 +7,15 @@ import cookieParser from "cookie-parser";
 config();
 
 // Debug: Check if API key is loaded
-console.log('GEMINI_API_KEY loaded:', process.env.GEMINI_API_KEY ? 'YES' : 'NO');
+console.log(
+  "GEMINI_API_KEY loaded:",
+  process.env.GEMINI_API_KEY ? "YES" : "NO"
+);
 if (process.env.GEMINI_API_KEY) {
-    console.log('API Key starts with:', process.env.GEMINI_API_KEY.substring(0, 10) + '...');
+  console.log(
+    "API Key starts with:",
+    process.env.GEMINI_API_KEY.substring(0, 10) + "..."
+  );
 }
 
 // Connect to MongoDB
@@ -30,7 +36,6 @@ app.use(cookieParser());
 // Routes
 import authRoutes from "./Routes/AuthRoutes.js";
 import userRoutes from "./Routes/UserRoutes.js";
-import companyRoutes from "./Routes/CompanyRoutes.js";
 import topicRoutes from "./Routes/TopicRoutes.js";
 import questionRoutes from "./Routes/QuestionRoutes.js";
 import quizRoutes from "./Routes/QuizRoutes.js";
@@ -41,13 +46,12 @@ import testRoutes from "./Routes/TestRoutes.js";
 // API Endpoints
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
-app.use("/api/companies", companyRoutes);
 app.use("/api/topics", topicRoutes);
 app.use("/api/questions", questionRoutes);
 app.use("/api/quiz", quizRoutes);
 app.use("/api/admin", adminRoutes);
-app.use("/api/test", testRoutes); // Test routes without auth
-app.use("/api/categories", categoryRoutes); // New
+app.use("/api/test", testRoutes);
+app.use("/api/categories", categoryRoutes);
 
 // Health Check
 app.get("/api/health", (req, res) => {
