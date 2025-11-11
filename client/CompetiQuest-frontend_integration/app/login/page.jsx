@@ -4,7 +4,6 @@ import Squares from "@/components/home/Squares";
 import { useState } from "react";
 import LoginPage from "@/components/login/LoginPage";
 import SignupPage from "@/components/login/SignupPage";
-import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 
 export default function Login() {
   const [themeColors, setThemeColors] = useState({

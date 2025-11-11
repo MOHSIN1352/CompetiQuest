@@ -28,18 +28,19 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 
 const NavLink = ({ children, href }) => (
-  <Link
+  <a
     href={href}
     className="text-base font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 relative group"
   >
     {children}
     <span className="absolute -bottom-1 left-0 w-full h-[1.5px] bg-accent scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
-  </Link>
+  </a>
 );
 
 const CategoryDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [categories, setCategories] = useState([]);
+  const { user } = useAuth();
   const router = useRouter();
   useEffect(() => {
     const fetchCategories = async () => {
@@ -58,8 +59,12 @@ const CategoryDropdown = () => {
   }, []);
 
   const handleCategoryClick = (cat) => {
-    sessionStorage.setItem("selectedCategory", JSON.stringify(cat));
-    router.push(`/${cat.name.toLowerCase().replace(/ /g, "_")}`);
+    if (user) {
+      sessionStorage.setItem("selectedCategory", JSON.stringify(cat));
+      router.push(`/${cat.name.toLowerCase().replace(/ /g, "_")}`);
+    } else {
+      router.push("/login");
+    }
   };
   return (
     <div
@@ -94,57 +99,41 @@ const CategoryDropdown = () => {
   );
 };
 
-const SidebarDropdown = ({ title, icon, children }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  return (
-    <div>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex justify-between items-center py-2.5 px-4 text-left hover:bg-accent/10 hover:text-accent rounded-md transition-colors duration-200 group"
-      >
-        <span className="flex items-center gap-3">
-          {icon}
-          <span>{title}</span>
-        </span>
-        <FiChevronDown
-          size={16}
-          className={`transition-transform duration-300 text-muted-foreground group-hover:text-accent ${
-            isOpen ? "rotate-180" : ""
-          }`}
-        />
-      </button>
-      {isOpen && <div className="pl-12 space-y-1 mt-1">{children}</div>}
-    </div>
-  );
-};
-
 const Sidebar = ({ isOpen, closeSidebar }) => {
   const { user, logout } = useAuth();
-  const categories = {
-    Aptitude: {
-      icon: <FiBarChart2 />,
-      subItems: ["Time and Work", "Profit and Loss", "Percentages"],
-    },
-    Reasoning: {
-      icon: <FiCpu />,
-      subItems: ["Puzzles", "Seating Arrangement", "Coding-Decoding"],
-    },
-    English: {
-      icon: <FiType />,
-      subItems: ["Reading Comprehension", "Grammar", "Vocabulary"],
-    },
-    "General Knowledge": {
-      icon: <FiGlobe />,
-      subItems: ["Current Affairs", "History", "Geography"],
-    },
-    Programming: {
-      icon: <FiCode />,
-      subItems: ["Data Structures", "Algorithms", "System Design"],
-    },
-  };
+  const router = useRouter();
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios(
+          `${process.env.NEXT_PUBLIC_API_URL}/categories`
+        );
+        const data = response.data;
+        console.log(response.data);
+        setCategories(data);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const formatUrl = (text) => text.toLowerCase().replace(/ /g, "_");
 
+  const handleNavigation = (href) => {
+    if (user) {
+      router.push(href);
+    } else {
+      router.push("/login");
+    }
+    closeSidebar();
+  };
   return (
     <>
       <div
@@ -167,7 +156,9 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
                 className="w-10 h-10 rounded-full"
               />
               <div>
-                <p className="font-semibold text-foreground">this is user</p>
+                <p className="font-semibold text-foreground">
+                  {user?.name || "Guest"}
+                </p>
               </div>
             </div>
             <button
@@ -178,86 +169,84 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
             </button>
           </div>
 
-          <div className="p-4">
-            <div className="relative">
-              <FiSearch className="absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Search..."
-                className="w-full bg-accent/10 border border-transparent text-foreground placeholder:text-muted-foreground rounded-md pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
-              />
-            </div>
-          </div>
-
           <nav className="flex-grow px-4 space-y-1.5 overflow-y-auto">
-            <Link
-              href="/"
-              className="flex items-center gap-3 py-2.5 px-4 hover:bg-accent/10 hover:text-accent rounded-md transition-colors duration-200"
-              onClick={closeSidebar}
+            <button
+              onClick={() => handleNavigation("/")}
+              className="w-full flex items-center gap-3 py-2.5 px-4 hover:bg-accent/10 hover:text-accent rounded-md transition-colors duration-200"
             >
               <FiHome /> Home
-            </Link>
-            <Link
-              href="/profile"
-              className="flex items-center gap-3 py-2.5 px-4 hover:bg-accent/10 hover:text-accent rounded-md transition-colors duration-200"
-              onClick={closeSidebar}
+            </button>
+            <button
+              onClick={() => handleNavigation("/profile")}
+              className="w-full flex items-center gap-3 py-2.5 px-4 hover:bg-accent/10 hover:text-accent rounded-md transition-colors duration-200"
             >
               <FiUser /> User Profile
-            </Link>
-            <Link
-              href="/quiz"
-              className="flex items-center gap-3 py-2.5 px-4 hover:bg-accent/10 hover:text-accent rounded-md transition-colors duration-200"
-              onClick={closeSidebar}
+            </button>
+            <button
+              onClick={() => handleNavigation("/quiz")}
+              className="w-full flex items-center gap-3 py-2.5 px-4 hover:bg-accent/10 hover:text-accent rounded-md transition-colors duration-200"
             >
               <FiHelpCircle /> AI Quiz
-            </Link>
-            <Link
-              href="/mental_maths"
-              className="flex items-center gap-3 py-2.5 px-4 hover:bg-accent/10 hover:text-accent rounded-md transition-colors duration-200"
-              onClick={closeSidebar}
+            </button>
+            <button
+              onClick={() => handleNavigation("/mental_maths")}
+              className="w-full flex items-center gap-3 py-2.5 px-4 hover:bg-accent/10 hover:text-accent rounded-md transition-colors duration-200"
             >
               <FiZap /> Mental Maths
-            </Link>
-            {Object.entries(categories).map(([title, { icon, subItems }]) => (
-              <SidebarDropdown key={title} title={title} icon={icon}>
-                {subItems.map((item) => (
-                  <Link
-                    key={item}
-                    href={`/${formatUrl(title)}/${formatUrl(item)}/page1`}
-                    className="block py-1.5 px-4 text-sm text-muted-foreground hover:text-accent rounded-md hover:bg-accent/10"
-                    onClick={closeSidebar}
-                  >
-                    {item}
-                  </Link>
-                ))}
-              </SidebarDropdown>
-            ))}
+            </button>
 
-            <Link
-              href="/#about-us"
-              className="flex items-center gap-3 py-2.5 px-4 hover:bg-accent/10 hover:text-accent rounded-md transition-colors duration-200"
-              onClick={closeSidebar}
+            {loading ? (
+              <div className="py-4 text-center text-muted-foreground text-sm">
+                Loading categories...
+              </div>
+            ) : (
+              categories.map((category) => (
+                <div key={category._id}>
+                  <button
+                    key={category._id}
+                    onClick={() =>
+                      handleNavigation(`/${formatUrl(category.name)}`)
+                    }
+                    className="w-full flex items-center gap-3 py-2.5 px-4 hover:bg-accent/10 hover:text-accent rounded-md transition-colors duration-200"
+                  >
+                    {category.name}
+                  </button>
+                </div>
+              ))
+            )}
+
+            <button
+              onClick={() => handleNavigation("/#about-us")}
+              className="w-full flex items-center gap-3 py-2.5 px-4 hover:bg-accent/10 hover:text-accent rounded-md transition-colors duration-200"
             >
               <FiInfo /> About
-            </Link>
-            <Link
-              href="/#contact-us"
-              className="flex items-center gap-3 py-2.5 px-4 hover:bg-accent/10 hover:text-accent rounded-md transition-colors duration-200"
-              onClick={closeSidebar}
+            </button>
+            <button
+              onClick={() => handleNavigation("/#contact-us")}
+              className="w-full flex items-center gap-3 py-2.5 px-4 hover:bg-accent/10 hover:text-accent rounded-md transition-colors duration-200"
             >
               <FiMail /> Contact
-            </Link>
+            </button>
           </nav>
 
           <div className="p-4 border-t border-border/50">
-            <Link
-              href="/login"
-              onClick={closeSidebar}
-              className="w-full flex items-center justify-center gap-3 py-2.5 px-4 bg-accent/10 hover:bg-accent text-accent hover:text-accent-foreground rounded-lg font-semibold transition-colors"
-            >
-              <FiLogIn />
-              <span>Login</span>
-            </Link>
+            {user ? (
+              <button
+                onClick={logout}
+                className="w-full flex items-center justify-center gap-3 py-2.5 px-4 bg-red-500/20 hover:bg-red-500 text-red-500 hover:text-white rounded-lg font-semibold transition-colors"
+              >
+                <FiLogIn />
+                <span>Logout</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => handleNavigation("/login")}
+                className="w-full flex items-center justify-center gap-3 py-2.5 px-4 bg-accent/10 hover:bg-accent text-accent hover:text-accent-foreground rounded-lg font-semibold transition-colors"
+              >
+                <FiLogIn />
+                <span>Login</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -334,10 +323,9 @@ export default function Navbar() {
               <div className="hidden min-[900px]:flex items-center space-x-8">
                 <NavLink href="/">Home</NavLink>
                 <CategoryDropdown />
-                <NavLink href="/quiz">AI Quiz</NavLink>
+                {user && <NavLink href="/quiz">AI Quiz</NavLink>}
                 <NavLink href="/mental_maths">Mental Maths</NavLink>
                 <NavLink href="/#about-us">About</NavLink>
-                <NavLink href="/#contact-us">Contact</NavLink>
               </div>
             )}
 
