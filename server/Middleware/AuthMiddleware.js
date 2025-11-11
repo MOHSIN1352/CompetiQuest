@@ -12,7 +12,6 @@ export const protect = async (req, res, next) => {
 
       // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      console.log(decoded);
       if (decoded.id == "admin-id-001") {
         req.user = {
           _id: "admin-id-001",

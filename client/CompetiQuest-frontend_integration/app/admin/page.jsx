@@ -2,18 +2,14 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import Squares from "@/components/home/Squares";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import {
   FaPlus,
   FaEdit,
   FaTrash,
-  FaEye,
   FaUsers,
   FaBook,
   FaQuestionCircle,
-  FaChevronDown,
-  FaChevronUp,
 } from "react-icons/fa";
 
 function AdminPanel() {

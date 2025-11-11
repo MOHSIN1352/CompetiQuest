@@ -148,27 +148,6 @@ export const updateUserProfile = async (req, res) => {
   }
 };
 
-// Change user password
-export const changePassword = async (req, res) => {
-  try {
-    const { currentPassword, newPassword } = req.body;
-    const user = await User.findById(req.user.id);
-
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    const isMatch = await bcrypt.compare(currentPassword, user.password);
-    if (!isMatch)
-      return res.status(400).json({ message: "Current password is incorrect" });
-
-    user.password = newPassword;
-    await user.save();
-
-    res.status(200).json({ message: "Password updated successfully" });
-  } catch (error) {
-    res.status(500).json({ message: "Server Error", error: error.message });
-  }
-};
-
 // Get user quiz history
 export const getUserQuizHistory = async (req, res) => {
   try {
@@ -185,29 +164,6 @@ export const getUserQuizHistory = async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not found" });
 
     res.status(200).json(user.quiz_history);
-  } catch (error) {
-    res.status(500).json({ message: "Server Error", error: error.message });
-  }
-};
-
-// Delete user account
-export const deleteUser = async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id);
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    await User.findByIdAndDelete(req.user.id);
-    res.status(200).json({ message: "User account deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ message: "Server Error", error: error.message });
-  }
-};
-
-// Get all users (admin)
-export const getAllUsers = async (req, res) => {
-  try {
-    const users = await User.find({}).select("-password");
-    res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ message: "Server Error", error: error.message });
   }
