@@ -138,7 +138,7 @@ const CategoryCard = ({ icon, title, description, topics, href, index }) => {
       animate={isInView ? "visible" : "hidden"}
       variants={shouldReduceMotion ? {} : cardVariants(index)}
     >
-      <Link href={href} className="block h-full group">
+      <a href={href} className="block h-full group">
         <motion.div
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
@@ -220,7 +220,7 @@ const CategoryCard = ({ icon, title, description, topics, href, index }) => {
             </div>
           </div>
         </motion.div>
-      </Link>
+      </a>
     </motion.li>
   );
 };

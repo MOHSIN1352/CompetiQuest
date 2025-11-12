@@ -20,8 +20,8 @@ export const protect = async (req, res, next) => {
           role: "admin",
         };
       } else {
-        // Get user from the token ID
-        req.user = await User.findById(decoded._id).select("-password");
+        // Get user from the token payload (token is signed with { id })
+        req.user = await User.findById(decoded.id).select("-password");
       }
 
       if (!req.user) {

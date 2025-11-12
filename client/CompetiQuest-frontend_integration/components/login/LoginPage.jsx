@@ -38,7 +38,7 @@ const LoginPage = ({ visible, handleFlip }) => {
   // ✅ Handle login
   const handleLogin = async () => {
     if (!validate()) {
-      toast.error("Please fix the errors before submitting.");
+      toast.error("Please enter valid password.");
       return;
     }
 

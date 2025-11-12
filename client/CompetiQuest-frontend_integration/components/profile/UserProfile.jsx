@@ -64,7 +64,10 @@ export default function UserProfile() {
 
   const fetchQuizData = async () => {
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/quiz/history/${user._id}`);
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/quiz/history/${user._id}`,
+        { withCredentials: true }
+      );
       
       if (response.data.success) {
         const quizzes = response.data.quizAttempts;
@@ -286,6 +289,15 @@ export default function UserProfile() {
     calendarData: quizStats.calendarData,
   };
 
+  // ---- Safe progress math helpers ----
+  const CIRCUMFERENCE = 2 * Math.PI * 52; // r=52 from SVG circle
+  const totalQ = Number(profile.total) || 0;
+  const solvedQ = Number(profile.solved) || 0;
+  const rawProgress = totalQ > 0 ? solvedQ / totalQ : 0;
+  const clampedProgress = Math.min(Math.max(rawProgress, 0), 1);
+  const dasharray = CIRCUMFERENCE;
+  const dashoffset = CIRCUMFERENCE * (1 - clampedProgress);
+
 
 
   // Function to get color intensity based on quiz count using red colors
@@ -334,7 +346,7 @@ export default function UserProfile() {
             <p className="text-sm text-muted-foreground mt-1">
               {user?.email || "Please login to see your email"}
             </p>
-            <Link href="/profile/edit">
+            <a href="/profile/edit">
               <button className="mt-3 
     flex items-center justify-center md:justify-start
     gap-2
@@ -349,7 +361,7 @@ export default function UserProfile() {
                <FiEdit2 className="w-4 h-4 sm:w-5 sm:h-5 md:w-5 md:h-5 lg:w-6 lg:h-6" />
                 Edit Profile
               </button>
-            </Link>
+            </a>
           </div>
         </div>
 
@@ -382,11 +394,8 @@ export default function UserProfile() {
                 strokeWidth="8"
                 fill="none"
                 strokeLinecap="round"
-                strokeDasharray={2 * Math.PI * 52}
-                strokeDashoffset={
-                  2 * Math.PI * 52 -
-                  (profile.solved / profile.total) * 2 * Math.PI * 52
-                }
+                strokeDasharray={dasharray}
+                strokeDashoffset={dashoffset}
               />
             </svg>
 
@@ -547,22 +556,22 @@ export default function UserProfile() {
               Quiz History
             </h3>
           </div>
-          <Link href="/quiz">
+          <a href="/quiz">
             <button className="px-4 py-2 bg-accent/20 text-accent font-semibold rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors duration-300 text-sm">
               Take New Quiz
             </button>
-          </Link>
+          </a>
         </div>
 
         <div className="text-center py-8">
           <FiHelpCircle className="text-4xl text-accent mx-auto mb-3" />
           <h4 className="text-lg font-semibold mb-2 text-foreground">Quiz Results</h4>
           <p className="text-muted-foreground mb-4">View your past quiz attempts and scores</p>
-          <Link href="/quiz/history">
+          <a href="/quiz/history">
             <button className="px-6 py-3 bg-accent text-accent-foreground rounded-lg hover:bg-accent/80 transition-colors duration-300 font-medium">
               View Past Quiz Results
             </button>
-          </Link>
+          </a>
         </div>
       </div>
 

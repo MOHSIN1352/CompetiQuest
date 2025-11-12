@@ -20,13 +20,13 @@ import Link from "next/link";
 
 const FooterLink = ({ icon, text, href }) => (
   <li>
-    <Link
+    <a
       href={href}
       className="flex items-center gap-3 hover:text-accent transition-colors"
     >
       {icon}
       <span>{text}</span>
-    </Link>
+    </a>
   </li>
 );
 
@@ -53,7 +53,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Branding & About */}
           <div className="md:col-span-2 lg:col-span-1">
-            <Link href="/" className="flex items-center gap-2 mb-4">
+            <a href="/" className="flex items-center gap-2 mb-4">
               <Image
                 src={darkMode ? "/Dark_Logo.png" : "/Light_Logo.png"}
                 alt="Logo"
@@ -64,7 +64,7 @@ export default function Footer() {
                 <span className="text-foreground">Competi</span>
                 <span className="text-accent">Quest</span>
               </span>
-            </Link>
+            </a>
             <p className="text-sm max-w-xs">
               Your one-stop destination for AI-powered competitive exam
               preparation.
@@ -119,15 +119,15 @@ export default function Footer() {
             © {new Date().getFullYear()} CompetiQuest. All rights reserved.
           </p>
           <div className="flex space-x-4 mt-4 sm:mt-0">
-            <Link href="#" className="hover:text-accent transition-colors">
+            <a href="#" className="hover:text-accent transition-colors">
               <FiTwitter />
-            </Link>
-            <Link href="#" className="hover:text-accent transition-colors">
+            </a>
+            <a href="#" className="hover:text-accent transition-colors">
               <FiInstagram />
-            </Link>
-            <Link href="#" className="hover:text-accent transition-colors">
+            </a>
+            <a href="#" className="hover:text-accent transition-colors">
               <FiLinkedin />
-            </Link>
+            </a>
           </div>
         </div>
       </div>

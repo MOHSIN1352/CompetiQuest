@@ -262,19 +262,19 @@ export default function Navbar() {
   const authButton = user ? (
     <div className="hidden sm:flex items-center space-x-4">
       {user?.role === "admin" ? (
-        <Link
+        <a
           href="/admin"
           className="px-4 py-2 bg-purple-500/20 text-purple-500 font-semibold rounded-lg hover:bg-purple-500 hover:text-white transition-colors duration-300"
         >
           Admin Panel
-        </Link>
+        </a>
       ) : (
-        <Link
+        <a
           href="/profile"
           className="relative p-2.5 rounded-full hover:bg-accent/10 hover:text-accent transition-colors duration-200"
         >
           <FiUser />
-        </Link>
+        </a>
       )}
       <button
         onClick={logout}
@@ -284,12 +284,12 @@ export default function Navbar() {
       </button>
     </div>
   ) : (
-    <Link
+    <a
       href="/login"
       className="hidden sm:block px-6 py-2 bg-accent/20 text-accent font-semibold rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors duration-300"
     >
       Login
-    </Link>
+    </a>
   );
   return (
     <>
@@ -305,7 +305,7 @@ export default function Navbar() {
                   <FiMenu size={24} />
                 </button>
               )}
-              <Link href="/" className="flex items-center gap-2">
+              <a href="/" className="flex items-center gap-2">
                 <Image
                   src={darkMode ? "/Dark_Logo.png" : "/Light_Logo.png"}
                   alt="Logo"
@@ -316,7 +316,7 @@ export default function Navbar() {
                   <span className="text-foreground">Competi</span>
                   <span className="text-accent">Quest</span>
                 </span>
-              </Link>
+              </a>
             </div>
 
             {user?.role !== "admin" && (

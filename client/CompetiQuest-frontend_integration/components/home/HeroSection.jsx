@@ -101,20 +101,20 @@ export default function HeroSection() {
         </p>
 
         <div className="mt-10 flex flex-col sm:flex-row items-center gap-6">
-          <Link
+          <a
             href="#"
             className="flex items-center gap-2 px-7 py-3 bg-accent text-accent-foreground font-bold rounded-xl shadow-lg transform hover:scale-105 transition-all duration-300"
           >
             <FiZap />
             <span>Start Practicing Now</span>
-          </Link>
-          <Link
+          </a>
+          <a
             href="#"
             className="flex items-center gap-2 px-7 py-3 border-2 border-accent text-accent font-bold rounded-xl transition-colors duration-300 hover:bg-accent hover:text-accent-foreground"
           >
             <FiGrid />
             <span>Browse Topics</span>
-          </Link>
+          </a>
         </div>
       </div>
 
