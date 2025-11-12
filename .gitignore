@@ -105,6 +105,12 @@ data/
 *.bak
 *.backup
 
+# Test coverage reports
+coverage/
+
 # Package lock files (choose one)
 # package-lock.json
 # yarn.lock
+
+# Test coverage reports
+coverage/

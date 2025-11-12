@@ -1,4 +1,3 @@
-// routes/QuizRoutes.js
 import express from "express";
 const router = express.Router();
 
@@ -12,7 +11,6 @@ import {
 
 import { protect, admin } from "../Middleware/AuthMiddleware.js";
 
-// User routes
 router.post("/generate", generateQuiz);
 router.post("/submit", submitQuiz);
 router.get("/history/:userId", getUserQuizHistory);

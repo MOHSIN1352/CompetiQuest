@@ -1,4 +1,3 @@
-// routes/QuestionRoutes.js
 import express from "express";
 const router = express.Router();
 
@@ -8,7 +7,6 @@ import {
   getQuestionsByTopicId,
 } from "../Controllers/QuestionControllers.js";
 
-// Public routes
 router.get("/", getAllQuestions);
 router.get("/:topicId", getQuestionsByTopicId);
 router.get("/:id", getQuestionById);

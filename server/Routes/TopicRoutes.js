@@ -1,4 +1,3 @@
-// routes/TopicRoutes.js
 import express from "express";
 const router = express.Router();
 
@@ -8,7 +7,6 @@ import {
   getTopicsByCategoryId,
 } from "../Controllers/TopicControllers.js";
 
-// Public routes
 router.get("/", getAllTopics);
 router.get("/:categoryId", getTopicsByCategoryId);
 router.get("/:id", getTopicById);

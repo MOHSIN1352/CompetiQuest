@@ -1,4 +1,3 @@
-// models/Topic.js
 import mongoose from 'mongoose';
 
 const { Schema } = mongoose;

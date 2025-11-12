@@ -58,13 +58,11 @@ export const getQuestionsByTopicId = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
 
-    // 1️⃣ Validate topic exists
     const topic = await Topic.findById(topicId);
     if (!topic) {
       return res.status(404).json({ message: "Topic not found" });
     }
 
-    // 2️⃣ Find questions that belong to this topic
     const query = { topic: topicId };
 
     const [questions, totalQuestions] = await Promise.all([
@@ -76,7 +74,6 @@ export const getQuestionsByTopicId = async (req, res) => {
       Question.countDocuments(query),
     ]);
 
-    // 3️⃣ Return structured data for frontend
     res.status(200).json({
       topic: {
         _id: topic._id,
