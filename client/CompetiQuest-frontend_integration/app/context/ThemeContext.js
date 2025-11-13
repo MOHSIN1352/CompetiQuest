@@ -8,7 +8,6 @@ export const ThemeProvider = ({ children }) => {
   const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
-    // This code runs only on the client, after the component mounts
     const isDark =
       localStorage.getItem("theme") === "dark" ||
       (!("theme" in localStorage) &&
@@ -22,7 +21,6 @@ export const ThemeProvider = ({ children }) => {
   const toggleDarkMode = (event) => {
     const isDark = document.documentElement.classList.contains("dark");
     
-    // Fallback for browsers that don't support the View Transitions API
     if (!document.startViewTransition) {
       setDarkMode(!isDark);
       document.documentElement.classList.toggle("dark");
@@ -70,5 +68,4 @@ export const ThemeProvider = ({ children }) => {
   );
 };
 
-// Custom hook to use the theme context
 export const useTheme = () => useContext(ThemeContext);

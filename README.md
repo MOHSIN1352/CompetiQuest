@@ -1,3 +1,4 @@
+
 # CompetiQuest - Online Learning Platform
 
 ## Overview
@@ -219,3 +220,4 @@ For issues, bug reports, or feature requests, please open an issue on the GitHub
 ## License
 
 This project is developed as part of a Service-Oriented Architecture course project for educational purposes.
+

@@ -1,9 +1,7 @@
-// layout.js
 import { Geist, Geist_Mono } from "next/font/google";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { ThemeProvider } from "./context/ThemeContext";
-// import ChatBotProvider from "../components/ChatBotProvider";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "./context/AuthContext";

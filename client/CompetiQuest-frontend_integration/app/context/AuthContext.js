@@ -66,7 +66,6 @@ export function AuthProvider({ children }) {
     }
   }, [user, pathname, router]);
 
-  // Optional: Centralized login handler (components may call their own as well)
   const login = async ({ username, password }) => {
     try {
       const res = await axios.post(
@@ -93,7 +92,6 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // Optional: Centralized registration handler
   const register = async ({ username, email, password }) => {
     try {
       const res = await axios.post(
@@ -102,7 +100,6 @@ export function AuthProvider({ children }) {
         { withCredentials: true }
       );
       toast.success("Registration successful!");
-      // Server also logs user in by setting cookie; try to reflect in context
       const returned = res?.data?.user ? res.data.user : res?.data;
       if (returned?._id) setUser(returned);
       return returned;
