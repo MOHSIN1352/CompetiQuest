@@ -2,13 +2,12 @@
 
 ## Overview
 
-The CompetiQuest backend is built using *Node.js, **Express 5, and **MongoDB. It provides APIs for user authentication, quiz management, question handling, topic, category, and company management. It supports both **user* and *admin* roles.
+The CompetiQuest backend is built using *Node.js, **Express 5, and **MongoDB. It provides APIs for user authentication, quiz management, question handling, topic, category. It supports both **user* and *admin* roles.
 
 Key features include:
 
 - User registration, login, and profile management
 - Category and topic management
-- Company management
 - Question CRUD and retrieval
 - Quiz generation, submission, scoring, leaderboard, and user statistics
 - Admin-only endpoints for analytics and management
@@ -40,13 +39,6 @@ Key features include:
   - subjects → array of strings
 - Associated with a category.
 
-### *Company*
-- Represents companies for company-based quiz categorization.
-- Fields:
-  - name (unique)
-  - description
-  - website
-  - created_at
 
 ### *Question*
 - Stores questions for quizzes.
@@ -90,12 +82,6 @@ Key features include:
 - Controller: CategoryController.js
 - Middleware: protect, admin
 
-### *Company Routes*
-- /api/companies → CRUD companies
-- /api/companies/search → search companies
-- /api/companies/:id → get/update/delete company by ID
-- Controller: CompanyController.js
-- Middleware: protect, admin for modifications
 
 ### *Topic Routes*
 - /api/topics → CRUD topics
@@ -153,12 +139,6 @@ Login:
 
 ---
 
-### *Company Management*
-1. Admin creates companies with name, description, and website.
-2. Companies support search functionality.
-3. Company data can be updated or deleted by admins.
-4. Public endpoints allow users to view and search companies.
-5. Pagination supported for listing all companies.
 
 ---
 
@@ -215,7 +195,6 @@ Login:
 - **ES Modules (import/export)** used consistently across all controllers, models, routes, and middleware.
 - *Express 5* used with updated syntax (removed wildcard * route pattern for 404 handler).
 - Pagination, search, and filtering implemented for all list endpoints.
-- Company management fully implemented for company-based categorization.
 - All date fields (created_at, updated_at, attempted_at) tracked for audit purposes.
 
 ---
