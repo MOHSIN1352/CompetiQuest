@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 
 const cookieOptions = {
   httpOnly: true, // Prevents client-side JS from accessing the cookie
-  secure: process.env.NODE_ENV === "production", // Only send over HTTPS in production
+  secure: false, // Only send over HTTPS in production
   sameSite: "Lax", // Or 'Strict'. Protects against CSRF
   maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days, matching the token
 };
@@ -102,7 +102,7 @@ export const loginUser = async (req, res) => {
 export const logoutUser = (req, res) => {
   res.clearCookie("jwt", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: false,
     sameSite: "Lax",
   });
 
