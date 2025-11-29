@@ -62,7 +62,7 @@ export const registerUser = async (req, res) => {
 export const loginUser = async (req, res) => {
   try {
     const { username, password } = req.body;
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ email: username });
     if (username === "MyAdmin" && password === "my-real-secure-password") {
       const adminUser = {
         _id: "admin-id-001", // can be any placeholder ID
