@@ -1,0 +1,9 @@
+# .dockerignore (in server/ directory)
+
+# Ignore local dependencies (we install fresh ones inside the container)
+node_modules
+
+# Ignore configuration and temporary files
+.env
+.git
+npm-debug.log
