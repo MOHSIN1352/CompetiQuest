@@ -27,17 +27,19 @@ RUN npm run build
 FROM node:20-alpine AS runner
 WORKDIR /app
 
-# Set production environment and port
+# Set production environment
 ENV NODE_ENV production
-ENV PORT 3000
+# CRITICAL FIX: Delete the hardcoded 'ENV PORT 3000'.
+# The actual running process will inherit the dynamic $PORT value provided by Render (e.g., 10000).
 
 # Copy necessary output files from the builder stage
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
-# Next.js frontend port
-EXPOSE 3000
+# Expose the port (Node/Next.js will automatically listen on process.env.PORT)
+# EXPOSE 3000 <-- DELETE THIS LINE
 
 # Command to start the Next.js standalone server
+# Next.js honors the PORT environment variable by default when running server.js
 CMD ["node", "server.js"]
