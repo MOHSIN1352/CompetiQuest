@@ -29,17 +29,12 @@ WORKDIR /app
 
 # Set production environment
 ENV NODE_ENV production
-# CRITICAL FIX: Delete the hardcoded 'ENV PORT 3000'.
-# The actual running process will inherit the dynamic $PORT value provided by Render (e.g., 10000).
 
 # Copy necessary output files from the builder stage
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
-# Expose the port (Node/Next.js will automatically listen on process.env.PORT)
-# EXPOSE 3000 <-- DELETE THIS LINE
-
 # Command to start the Next.js standalone server
-# Next.js honors the PORT environment variable by default when running server.js
-CMD ["node", "server.js", "-H", "0.0.0.0"]
+# CRITICAL FIX: Ensure Next.js binds to all network interfaces (0.0.0.0) AND limit memory usage
+CMD ["node", "--max-old-space-size=460", "server.js", "-H", "0.0.0.0"]
