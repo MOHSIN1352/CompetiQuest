@@ -22,6 +22,7 @@ if (process.env.GEMINI_API_KEY) {
 connectDB();
 
 const app = express();
+app.enable('trust proxy');
 
 // Middleware
 app.use(
