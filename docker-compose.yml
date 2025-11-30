@@ -1,36 +1,35 @@
-# Final docker-compose.yml for Render
+version: "3.9"
 
 services:
-  # 1. Backend Service
   backend:
-    build: 
-      context: ./server/    
+    build:
+      context: ./server
     container_name: competiquest_backend
-    # Removed ports: 5000:5000 - Render handles internal port mapping
+    ports:
+      - "5000:5000"
     environment:
-      # These variables are injected from the Render environment/secrets file
-      MONGO_URI: $MONGO_URI
-      JWT_SECRET: $JWT_SECRET
+      MONGO_URI: ${MONGO_URI}
+      JWT_SECRET: ${JWT_SECRET}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      NODE_ENV: ${NODE_ENV}
       PORT: 5000
-      GEMINI_API_KEY: $GEMINI_API_KEY
-      NODE_ENV: $NODE_ENV # Pass the production environment flag
     restart: always
     networks:
       - competiquest-network
 
-  # 2. Frontend Service
   frontend:
-    build: 
-      context: ./client/CompetiQuest-frontend_integration/ 
+    build:
+      context: ./client/CompetiQuest-frontend_integration
       args:
-        NEXT_PUBLIC_API_URL: $NEXT_PUBLIC_API_URL
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
     container_name: competiquest_frontend
-    # Removed ports: 3000:3000
-    environment:
-      NEXT_PUBLIC_API_URL: $NEXT_PUBLIC_API_URL
-      NODE_ENV: $NODE_ENV # Pass the production environment flag
+    ports:
+      - "3000:3000"
     depends_on:
       - backend
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      NODE_ENV: ${NODE_ENV}
     restart: always
     networks:
       - competiquest-network
