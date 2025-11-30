@@ -26,7 +26,7 @@ const app = express();
 // Middleware
 app.use(
   cors({
-    origin: "https://competiquest.vercel.app/",
+    origin: "https://competiquest-gsr28a5gw-mohsin-pathans-projects.vercel.app/",
     credentials: true,
   })
 );
