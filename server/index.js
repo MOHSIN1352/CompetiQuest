@@ -26,8 +26,11 @@ const app = express();
 // Middleware
 app.use(
   cors({
-    origin: "https://competiquest-gsr28a5gw-mohsin-pathans-projects.vercel.app/",
+    origin: "https://competiquest-gsr28a5gw-mohsin-pathans-projects.vercel.app", 
     credentials: true,
+    // Add these for full preflight support
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS", 
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie", "Origin"], 
   })
 );
 app.use(json());
