@@ -42,4 +42,4 @@ COPY --from=builder /app/.next/static ./.next/static
 
 # Command to start the Next.js standalone server
 # Next.js honors the PORT environment variable by default when running server.js
-CMD ["node", "server.js"]
+CMD ["node", "server.js", "-H", "0.0.0.0"]
