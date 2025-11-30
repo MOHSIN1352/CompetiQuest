@@ -2,20 +2,18 @@
 
 FROM node:20-alpine 
 
-# Set the working directory inside the container
 WORKDIR /app
 
-# CRITICAL FIX: Install dependencies needed for native modules (like bcrypt)
 RUN apk add --no-cache python3 make g++
 
-# Copy package files and install dependencies
 COPY package.json package-lock.json ./
-RUN npm install
+RUN npm install --production
 
-# Copy the rest of the application code
 COPY . .
 
-EXPOSE 5000 
+# Railway injects PORT dynamically (ex: 39345)
+ENV PORT=$PORT
 
-# Command to start the application using the entry file (index.js)
+EXPOSE 5000
+
 CMD ["node", "index.js"]
